@@ -24,6 +24,13 @@ class Grid:
         self.tail_handles = list()
         self.outer_corner_tail_list = list()
 
+        # RL
+        self.interesting_points_list_xy = list()
+        self.interesting_points_list_ij = list()
+        self.corner_points_list_xy = list()
+        self.corner_points_list_ij = list()
+        #
+
     def xy_to_ij(self, x, y):
         i = int(np.floor((x - self.x_lim[0])/self.res))
         j = int(np.floor((y - self.y_lim[0]) / self.res))
@@ -128,22 +135,6 @@ class Grid:
                         if self.matrix[i][j] == 0:
                             non_sc_list.append([self.ij_to_xy(i, j)])
         return non_sc_list
-
-    def is_tail_interesting(self, i, j):
-        # Tail is explored
-        if self.matrix[i][j] != 1:
-            return False
-        # Tail not on the border of the grid
-        if i < 1 or i >= self.matrix.shape[0] or j < 1 or j >= self.matrix.shape[1]:
-            return False
-        # Tail on the edge of explored area
-        ind_list = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [1, -1], [0, -1], [-1, -1], [0, -1]]
-        for k in range(1, ind_list.__len__()-1): #TODO: need refinement
-            if self.matrix[ind_list[k][0] + i][ind_list[k][1] + j] == 0:
-                return True
-        return False
-
-        # Tail in a corner
 
     def is_tail_at_outer_corner(self, i, j):
         if self.matrix[i][j] == 1:
@@ -261,14 +252,6 @@ class Grid:
         i, j = self.xy_to_ij(p[0][0], p[0][1])
         return self.matrix[i][j] == 3
 
-    def find_interesting_tail(self):
-        tail_list = list()
-        for i in range(1, self.matrix.__len__()-1):
-            for j in range(1, self.matrix[i].__len__()-1):
-                if self.is_tail_interesting(i, j):
-                    tail_list.append([i, j])
-        return tail_list
-
     def mark_enterence_as_closed_area(self, env):
         for i in range(0, self.matrix.__len__()):
             x, y = self.ij_to_xy(i, 0)
@@ -351,3 +334,90 @@ class Grid:
         if (self.matrix[self.matrix.__len__()-1][0] == 0 and
                 (self.matrix[self.matrix[0].__len__()-1][1] == 2 and self.matrix[self.matrix[0].__len__()-2][0] == 2)):
             self.change_tail_to_wall(self.matrix.__len__()-1, 0)
+
+
+# RL
+    def is_tail_interesting(self, i, j):
+        # # Tail is explored
+        if i < 1 or i >= self.matrix.shape[0] or j < 1 or j >= self.matrix.shape[1]:
+            return False
+        # Tail on the edge of explored area
+        ind_list = [[-1, -1], [0, -1], [1, -1], [1, 0], [1, 1], [0, 1], [-1, 1], [-1, 0]]
+        cnt_wall = 0
+        cnt_unexplored = 0
+        for k in range(len(ind_list)):
+            if (self.matrix[i][j] == 1) and (self.matrix[ind_list[k][0] + i][ind_list[k][1] + j] == 2):
+                cnt_wall = cnt_wall + 1
+            if (self.matrix[i][j] == 1) and (self.matrix[ind_list[k][0] + i][ind_list[k][1] + j] == 0):
+                cnt_unexplored = cnt_unexplored + 1
+        if (1 <= cnt_wall < 4) and (cnt_unexplored > 1):
+            return True
+        else:
+            return False
+
+    def is_tail_in_corner(self, i, j):
+        if self.matrix[i][j] == 1:
+            if (self.matrix[i + 1][j] == 1 and self.matrix[i][j + 1] == 1 and self.matrix[i + 1][j + 1] != 1 ) or (
+                    self.matrix[i + 1][j] == 1 and self.matrix[i][j - 1] == 1 and self.matrix[i + 1][j - 1] != 1 ) or (
+                    self.matrix[i - 1][j] == 1 and self.matrix[i][j - 1] == 1 and self.matrix[i - 1][j - 1] != 1 ) or (
+                    self.matrix[i - 1][j] == 1 and self.matrix[i][j + 1] == 1 and self.matrix[i - 1][j + 1] != 1 ):
+                return True
+        return False
+
+    def find_corners_tails(self):
+        tail_list = list()
+        for i in range(1, self.matrix.__len__()-1):
+            for j in range(1, self.matrix[i].__len__()-1):
+                if self.is_tail_in_corner(i, j):
+                    tail_list.append([i, j])
+        return tail_list
+
+    def find_interesting_tail(self):
+        tail_list = list()
+        sequence_cnt = np.zeros(np.shape(self.matrix))
+        for i in range(1, self.matrix.__len__()-1):
+            for j in range(1, self.matrix[i].__len__()-1):
+                if self.is_tail_interesting(i, j):
+                    # if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
+                    #     tail_list.append([i, j])
+                    #     sequence_cnt[i][j] = 1
+                    tail_list.append([i, j])
+        return tail_list
+
+    def find_interesting_points(self):
+        tails_list = self.find_interesting_tail()
+        for i, j in tails_list:
+            self.interesting_points_list_ij.append([i, j])
+            self.interesting_points_list_xy.append(self.ij_to_xy(i, j))
+
+    def find_corner_points(self):
+        tails_list = self.find_corners_tails()
+        for i, j in tails_list:
+            self.corner_points_list_ij.append([i, j])
+            self.corner_points_list_xy.append(self.ij_to_xy(i, j))
+
+    def plot_interesting_points(self):
+        for i, j in self.interesting_points_list_ij:
+            self.change_tail_color_ij( i, j, 'm')
+
+    def erase_interesting_points(self):
+        for i, j in self.interesting_points_list_ij:
+            self.change_tail_to_empty(i, j)
+        # self.interesting_points_list_ij.clear()
+        # self.interesting_points_list_xy.clear()
+        del self.interesting_points_list_ij[:]
+        del self.interesting_points_list_xy[:]
+
+    def erase_corner_points(self):
+        for i, j in self.corner_points_list_ij:
+            self.change_tail_to_empty(i, j)
+        # self.corner_points_list_ij.clear()
+        # self.corner_points_list_xy.clear()
+        del self.corner_points_list_ij[:]
+        del self.corner_points_list_xy[:]
+
+    def plot_corner_points(self):
+        for i, j in self.corner_points_list_ij:
+            self.change_tail_color_ij(i, j, 'g')
+
+#

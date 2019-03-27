@@ -271,31 +271,3 @@ class Env:
                 self.obs_vertex_list.append(vertex)
             del self.obs_vertex_list[-1]
 
-    def find_interesting_points(self):
-        self.interesting_points_list.clear()
-        tails_list = self.grid.find_interesting_tail()
-        for i, j in tails_list:
-            self.interesting_points_list.append(self.grid.ij_to_xy(i, j))
-
-    def find_corner_points(self):
-        self.corner_points_list.clear()
-        tails_list = self.grid.find_corners_tails()
-        for i, j in tails_list:
-            self.corner_points_list.append(self.grid.ij_to_xy(i, j))
-
-    def plot_interesting_points(self):
-        for h in self.interesting_points_handel_list:
-            h[0].remove()
-        self.interesting_points_handel_list.clear()
-        for x, y in self.interesting_points_list:
-            h = self.ax.plot(x, y, 'm')                     #TODO: This is too heavy and the points are not shown
-            self.interesting_points_handel_list.append(h)
-
-    def plot_corner_points(self):
-        for h in self.corner_points_handel_list:
-            h[0].remove()
-        self.corner_points_handel_list.clear()
-        for x, y in self.corner_points_list:
-            h = self.ax.plot(x, y, 'm')
-            self.corner_points_handel_list.append(h)
-

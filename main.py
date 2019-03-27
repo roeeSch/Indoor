@@ -7,17 +7,18 @@ from EnvSim import Env
 from Grid import Grid
 from Agent import Agent
 from Drone import Drone
+import PathBuilder
 
 env = Env(10, 2, True)
 grid = Grid(env.border_polygon_for_grid, 10, env.ax_grid)
 grid.plot_grid()
-grid.mark_enterence_as_closed_area(env)
+# grid.mark_enterence_as_closed_area(env)
 
 env.plot_obs_array()
 env.fig.show()
 env.fig.canvas.draw()
 
-n = 7 # number of agents in the scenario
+n = 5 # number of agents in the scenario
 agents = list()
 drones = list()
 for i in range(0, n):
@@ -32,10 +33,24 @@ env.fig.show()
 env.fig.canvas.draw()
 time.sleep(1)
 
+# RL
+count_time_step = 0
+time_multiplier = 3
+#
+
 movie_flag = False
 
 if not movie_flag:
     for t in range(0, 500):
+        # RL
+        count_time_step += 1
+        if np.mod(count_time_step, time_multiplier) == 0:
+            grid, Astar_Movement = PathBuilder.build_trj(grid, drones)
+            if Astar_Movement:
+                for i in range(0, n):
+                    agents[i].astar_path = Astar_Movement[i]
+
+        #
         for i in range(0, n):
 
             tof_list = drones[i].tof_sensing()
@@ -44,14 +59,11 @@ if not movie_flag:
             if t == 0:
                 virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
             neigbours_pos_list = drones[i].preform_step(drones)
-
             virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, neigbours_pos_list)
-            if np.mod(t, 5) == 0:
-                drones[i].update_virtual_targets(virtual_target, virtual_heading)
-
+            drones[i].update_virtual_targets(virtual_target, virtual_heading)
             drones[i].plot_edges(env.ax_grid, agents[i].reduced_neigbours_pos_list)
 
-        grid.update_close_areas()
+        # grid.update_close_areas()
         grid.complete_wall_in_corners()
         #grid.change_tail_list_color(grid.outer_corner_tail_list, 'k')
         #grid.find_outer_corners_tails()
@@ -62,37 +74,34 @@ if not movie_flag:
         #env.fig_grid.canvas.draw()
         time.sleep(0.01)
 
-
 else: # Creating a movie
     FFMpegWriter = manimation.writers['ffmpeg']
     metadata = dict(title='Movie Test', artist='Matplotlib',
                     comment='Movie support!')
     writer = FFMpegWriter(fps=10, metadata=metadata)
     with writer.saving(env.fig, "writer_test.mp4", 100):
-        for t in range(1, 500):
+        for t in range(0, 500):
+            # RL
+            count_time_step += 1
+            if np.mod(count_time_step, time_multiplier) == 0:
+                grid, Astar_Movement = PathBuilder.build_trj(grid, drones)
+                if Astar_Movement:
+                    for i in range(0, n):
+                        agents[i].astar_path = Astar_Movement[i]
+            #
             for i in range(0, n):
-                agents[i].calculate_step(agents, env)
-            grid.update_close_areas()
+
+                tof_list = drones[i].tof_sensing()
+                grid.update_from_tof_sensing_list(tof_list)
+
+                if t == 0:
+                    virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
+                neigbours_pos_list = drones[i].preform_step(drones)
+                virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, neigbours_pos_list)
+                drones[i].update_virtual_targets(virtual_target, virtual_heading)
+                drones[i].plot_edges(env.ax_grid, agents[i].reduced_neigbours_pos_list)
+
             grid.complete_wall_in_corners()
-            # grid.change_tail_list_color(grid.outer_corner_tail_list, 'k')
-            # grid.find_outer_corners_tails()
-            # grid.change_tail_list_color(grid.outer_corner_tail_list, 'b')
-            # env.find_corner_points()
-            # env.plot_corner_points()
             env.fig.canvas.draw()
-            # env.fig_grid.canvas.draw()
             time.sleep(0.01)
-            for i in range(0, n):
-                agents[i].perform_step(env)
-
-            for i in range(0, n):
-                if not agents[i].agent_alive:
-                    agents[i].AgetPlotHadel.remove()
-                    agents[i].AgetPlotHadel_grid.remove()
-                    agents.remove(agents[i])
-                    if env.los_to_target_handel.__len__() > 0:
-                        env.los_to_target_handel[0].remove()
-
-                    n = n - 1
-                    break
             writer.grab_frame()

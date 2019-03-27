@@ -23,6 +23,7 @@ class Drone:
         self.scanning_range = 200 #[cm]
         self.neighbours_visibility_range = 400 #cm
         self.dt = 0.1 #[sec]
+        self.stop_command = False #RL
 
         self.ax_env = ax_env
         self.ax_grid = ax_grid
@@ -118,4 +119,12 @@ class Drone:
     def delete_edges(self):
         for edge_handel in self.edg_to_neighbors_plot_hadels:
             edge_handel[0].remove()
-        self.edg_to_neighbors_plot_hadels.clear()
+        # self.edg_to_neighbors_plot_hadels.clear() # not supported in python 2.7
+        del self.edg_to_neighbors_plot_hadels[:]
+
+    def prevent_collision(self, drones): # RL - meanwhile not in use
+        for i in range(len(drones)):
+            if (self.ID != drones[i].ID) and (
+                    np.linalg.norm(self.pos - drones[i].pos) < (1.5 * self.step_noise_size)) and (
+                    drones[i].stop_command != True):
+                self.stop_command = True

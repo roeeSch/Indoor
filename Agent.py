@@ -34,6 +34,7 @@ class Agent:
         self.goal_orianted_flag_flip_prob = 0
         self.goal_orianted_flag = True #np.random.rand(1) < self.goal_orianted_flag_flip_prob
         self.reduced_neigbours_pos_list = list()
+        self.astar_path = [] #RL
 
         self.grid = grid
         self.ax = ax
@@ -114,8 +115,44 @@ class Agent:
             self.delete_edges()
             self.agent_alive = False
 
+
+    def Dynam_Search_in_maze(self, NeighborsPosList, grid): # RL
+
+        max_count_val = 15
+        break_counter = 0
+        vec = np.zeros(2)
+        flag = False
+
+        try:
+            vec = [self.astar_path[0][0]-self.current_pos[0][0],self.astar_path[0][1]-self.current_pos[0][1]]
+        except:
+            vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
+        while not flag and break_counter < max_count_val:
+            break_counter = break_counter + 1
+            step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
+            if grid.is_step_legal(self.current_pos, step):
+                flag = True
+                if np.random.rand(1) < 0.8:
+                    for neighbor_pos in NeighborsPosList:
+                        if self.outOfLimit_Ando(neighbor_pos, step):
+                            flag = False
+                            break
+                        if not self.is_step_in_corridor(step, neighbor_pos, grid):
+                            flag = False
+                            break
+                    else:
+                        break
+
+        if break_counter < max_count_val:
+            self.next_pos = self.current_pos + step
+            try:
+                del self.astar_path[0]
+            except:
+                pass
+
+
 # This is the important function, that should be rewriten
-    def Dynam_Search_in_maze(self, NeighborsPosList, env):
+    def Dynam_Search_in_maze_old(self, NeighborsPosList, env):
         flag = False
         break_counter = 0
         rep_att_vec = np.zeros(2)
@@ -163,10 +200,10 @@ class Agent:
 
         if break_counter < 20:
             self.next_pos = self.current_pos + step
-# The "is_step_in_corridor" functions let connected agent to disconnect with small probability
-    def is_step_in_corridor(self, step, neighbor_pos):
+    # The "is_step_in_corridor" functions let connected agent to disconnect with small probability
+    def is_step_in_corridor(self, step, neighbor_pos, grid):
         neighbor_abs_pos = self.current_pos + neighbor_pos
-        if self.grid.is_step_legal(neighbor_abs_pos, step):
+        if grid.is_step_legal(neighbor_abs_pos, step):
             neighbor_abs_pos_potential = neighbor_abs_pos + step
         else:
             neighbor_pos_unit = neighbor_pos / np.linalg.norm(neighbor_pos)
@@ -241,7 +278,8 @@ class Agent:
     def delete_edges(self):
         for edge_handel in self.edg_to_neighbors_plot_hadels:
             edge_handel[0].remove()
-        self.edg_to_neighbors_plot_hadels.clear()
+        # self.edg_to_neighbors_plot_hadels.clear()
+        del self.edg_to_neighbors_plot_hadels[:]
 
     def update_sate(self, pos, heading):
         self.current_pos = pos
@@ -276,3 +314,5 @@ class Agent:
 
     def getKey(self, item):
         return item[0]
+
+
