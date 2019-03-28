@@ -58,6 +58,9 @@ if not movie_flag:
 
             if t == 0:
                 virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
+            agents[i].stop_command = False
+            # agents[i].prevent_collision( agents)
+            drones[i].stop_command = agents[i].stop_command
             neigbours_pos_list = drones[i].preform_step(drones)
             virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, neigbours_pos_list)
             drones[i].update_virtual_targets(virtual_target, virtual_heading)

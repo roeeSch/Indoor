@@ -350,7 +350,7 @@ class Grid:
                 cnt_wall = cnt_wall + 1
             if (self.matrix[i][j] == 1) and (self.matrix[ind_list[k][0] + i][ind_list[k][1] + j] == 0):
                 cnt_unexplored = cnt_unexplored + 1
-        if (1 <= cnt_wall < 4) and (cnt_unexplored > 1):
+        if ((cnt_wall >= 1) and (cnt_unexplored >= 1)) or (cnt_unexplored >= 3):
             return True
         else:
             return False

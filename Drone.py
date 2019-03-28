@@ -103,9 +103,10 @@ class Drone:
         return neighbors_pos
 
     def preform_step(self, drone_arr):
-        self.update_position()
-        self.update_velocity()
-        self.update_ang()
+        if not self.stop_command:
+            self.update_position()
+            self.update_velocity()
+            self.update_ang()
         neighbors_pos = self.neighbors_sensing(drone_arr)
         self.update_drone_plot()
         return neighbors_pos
@@ -122,9 +123,3 @@ class Drone:
         # self.edg_to_neighbors_plot_hadels.clear() # not supported in python 2.7
         del self.edg_to_neighbors_plot_hadels[:]
 
-    def prevent_collision(self, drones): # RL - meanwhile not in use
-        for i in range(len(drones)):
-            if (self.ID != drones[i].ID) and (
-                    np.linalg.norm(self.pos - drones[i].pos) < (1.5 * self.step_noise_size)) and (
-                    drones[i].stop_command != True):
-                self.stop_command = True

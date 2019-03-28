@@ -250,6 +250,7 @@ def build_trj(grid, drones):
 
             Astar_Movement.append(astar_movement[1:])
         else:
+            Astar_Movement.append([])
             continue
 
     return grid, Astar_Movement
