@@ -35,7 +35,6 @@ class Agent:
         self.goal_orianted_flag = True #np.random.rand(1) < self.goal_orianted_flag_flip_prob
         self.reduced_neigbours_pos_list = list()
         self.astar_path = [] #RL
-        self.stop_command = False #RL
 
         self.grid = grid
         self.ax = ax
@@ -315,10 +314,3 @@ class Agent:
 
     def getKey(self, item):
         return item[0]
-
-    def prevent_collision(self, agents):
-        for i in range(len(agents)):
-            if (self.ID != agents[i].ID) and (
-                    np.linalg.norm(self.next_pos - agents[i].next_pos) < (1.5 * self.step_noise_size)) and (
-                    agents[i].stop_command != True):
-                self.stop_command = True

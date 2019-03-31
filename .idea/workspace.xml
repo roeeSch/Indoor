@@ -1,10 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="25250b1c-5b27-47e1-988d-5ca4d8beac25" name="Default Changelist" comment="Movement after points of interest was inserted">
+    <list default="true" id="25250b1c-5b27-47e1-988d-5ca4d8beac25" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/Indoor.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/encodings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Agent.py" beforeDir="false" afterPath="$PROJECT_DIR$/Agent.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Drone.py" beforeDir="false" afterPath="$PROJECT_DIR$/Drone.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/EnvSim.py" beforeDir="false" afterPath="$PROJECT_DIR$/EnvSim.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Grid.py" beforeDir="false" afterPath="$PROJECT_DIR$/Grid.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/PathBuilder.py" beforeDir="false" afterPath="$PROJECT_DIR$/PathBuilder.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
@@ -20,8 +26,8 @@
       <file pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/main.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="94">
-              <caret line="62" column="43" selection-start-line="62" selection-start-column="43" selection-end-line="62" selection-end-column="43" />
+            <state relative-caret-position="1297">
+              <caret line="94" lean-forward="true" selection-start-line="94" selection-end-line="94" />
               <folding>
                 <element signature="e#44#75#0" expanded="true" />
               </folding>
@@ -32,8 +38,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/PathBuilder.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="171">
-              <caret line="223" column="19" selection-start-line="223" selection-start-column="19" selection-end-line="223" selection-end-column="19" />
+            <state relative-caret-position="78">
+              <caret line="231" selection-start-line="231" selection-end-line="231" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
               </folding>
@@ -44,8 +50,20 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Drone.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="145">
-              <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
+            <state relative-caret-position="374">
+              <caret line="22" column="17" selection-start-line="22" selection-start-column="17" selection-end-line="22" selection-end-column="17" />
+              <folding>
+                <element signature="e#0#31#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/EnvSim.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="182">
+              <caret line="41" column="32" lean-forward="true" selection-start-line="41" selection-start-column="32" selection-end-line="41" selection-end-column="32" />
               <folding>
                 <element signature="e#0#31#0" expanded="true" />
               </folding>
@@ -56,8 +74,8 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Grid.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="352" column="76" selection-start-line="352" selection-start-column="76" selection-end-line="352" selection-end-column="76" />
+            <state relative-caret-position="290">
+              <caret line="379" column="50" lean-forward="true" selection-start-line="379" selection-start-column="50" selection-end-line="379" selection-end-column="50" />
               <folding>
                 <element signature="e#1#19#0" expanded="true" />
               </folding>
@@ -66,22 +84,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/EnvSim.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="822">
-              <caret line="103" selection-start-line="103" selection-end-line="103" />
-              <folding>
-                <element signature="e#0#31#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Agent.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="225">
-              <caret line="318" column="8" selection-start-line="318" selection-start-column="8" selection-end-line="318" selection-end-column="8" />
+            <state relative-caret-position="137">
+              <caret line="129" column="57" lean-forward="true" selection-start-line="129" selection-start-column="57" selection-end-line="129" selection-end-column="57" />
               <folding>
                 <element signature="e#85#116#0" expanded="true" />
               </folding>
@@ -105,6 +111,8 @@
       <find>sim_time</find>
       <find>time_step</find>
       <find>tail_handles</find>
+      <find>return</find>
+      <find>corn</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -114,10 +122,10 @@
     <option name="CHANGED_PATHS">
       <list>
         <option value="$PROJECT_DIR$/EnvSim.py" />
+        <option value="$PROJECT_DIR$/Grid.py" />
         <option value="$PROJECT_DIR$/Drone.py" />
         <option value="$PROJECT_DIR$/PathBuilder.py" />
         <option value="$PROJECT_DIR$/Agent.py" />
-        <option value="$PROJECT_DIR$/Grid.py" />
         <option value="$PROJECT_DIR$/main.py" />
       </list>
     </option>
@@ -149,7 +157,7 @@
   </component>
   <component name="PropertiesComponent">
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../PycharmProjects/IndoorSimulation" />
-    <property name="settings.editor.selected.configurable" value="configurable.group.build" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -164,6 +172,27 @@
     </option>
   </component>
   <component name="RunManager" selected="Python.main">
+    <configuration name="Drone" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="Indoor" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Drone.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="Grid" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="Indoor" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -230,6 +259,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.main" />
+        <item itemvalue="Python.Drone" />
         <item itemvalue="Python.PathBuilder" />
         <item itemvalue="Python.Grid" />
       </list>
@@ -253,8 +283,24 @@
       <option name="project" value="LOCAL" />
       <updated>1553703658396</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Bug in PathBuilder output was fixed and added prevent_collision as an optional function">
+      <created>1553764552538</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1553764552538</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
+  </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
   </component>
   <component name="ToolWindowManager">
     <frame x="-7" y="-7" width="1550" height="838" extended-state="6" />
@@ -266,12 +312,12 @@
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
       <window_info anchor="bottom" id="Run" order="2" weight="0.27672035" />
-      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.28550512" />
+      <window_info active="true" anchor="bottom" id="Debug" order="3" visible="true" weight="0.24597365" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
-      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="TODO" order="6" weight="0.22254759" />
       <window_info anchor="bottom" id="Version Control" order="7" weight="0.2035139" />
-      <window_info anchor="bottom" id="Terminal" order="8" />
+      <window_info anchor="bottom" id="Terminal" order="8" weight="0.329429" />
       <window_info anchor="bottom" id="Event Log" order="9" side_tool="true" />
       <window_info anchor="bottom" id="Python Console" order="10" weight="0.24158126" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
@@ -281,7 +327,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Movement after points of interest was inserted" />
-    <option name="LAST_COMMIT_MESSAGE" value="Movement after points of interest was inserted" />
+    <MESSAGE value="Bug in PathBuilder output was fixed and added prevent_collision as an optional function" />
+    <option name="LAST_COMMIT_MESSAGE" value="Bug in PathBuilder output was fixed and added prevent_collision as an optional function" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://C:/Python27/Lib/site-packages/shapely/geometry/linestring.py">
@@ -298,20 +345,44 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$APPLICATION_HOME_DIR$/helpers/pydev/pydevd.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="245">
+          <caret line="1734" selection-start-line="1734" selection-end-line="1734" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://C:/Python27/Lib/lib-tk/Tkinter.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="163">
+          <caret line="1908" selection-start-line="1908" selection-end-line="1908" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/EnvSim.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="822">
-          <caret line="103" selection-start-line="103" selection-end-line="103" />
+        <state relative-caret-position="182">
+          <caret line="41" column="32" lean-forward="true" selection-start-line="41" selection-start-column="32" selection-end-line="41" selection-end-column="32" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/Grid.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="290">
+          <caret line="379" column="50" lean-forward="true" selection-start-line="379" selection-start-column="50" selection-end-line="379" selection-end-column="50" />
+          <folding>
+            <element signature="e#1#19#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/Drone.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="145">
-          <caret line="104" column="8" selection-start-line="104" selection-start-column="8" selection-end-line="104" selection-end-column="8" />
+        <state relative-caret-position="374">
+          <caret line="22" column="17" selection-start-line="22" selection-start-column="17" selection-end-line="22" selection-end-column="17" />
           <folding>
             <element signature="e#0#31#0" expanded="true" />
           </folding>
@@ -320,28 +391,18 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/PathBuilder.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="171">
-          <caret line="223" column="19" selection-start-line="223" selection-start-column="19" selection-end-line="223" selection-end-column="19" />
+        <state relative-caret-position="78">
+          <caret line="231" selection-start-line="231" selection-end-line="231" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Grid.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="352" column="76" selection-start-line="352" selection-start-column="76" selection-end-line="352" selection-end-column="76" />
-          <folding>
-            <element signature="e#1#19#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/Agent.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="318" column="8" selection-start-line="318" selection-start-column="8" selection-end-line="318" selection-end-column="8" />
+        <state relative-caret-position="137">
+          <caret line="129" column="57" lean-forward="true" selection-start-line="129" selection-start-column="57" selection-end-line="129" selection-end-column="57" />
           <folding>
             <element signature="e#85#116#0" expanded="true" />
           </folding>
@@ -350,8 +411,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/main.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="94">
-          <caret line="62" column="43" selection-start-line="62" selection-start-column="43" selection-end-line="62" selection-end-column="43" />
+        <state relative-caret-position="1297">
+          <caret line="94" lean-forward="true" selection-start-line="94" selection-end-line="94" />
           <folding>
             <element signature="e#44#75#0" expanded="true" />
           </folding>

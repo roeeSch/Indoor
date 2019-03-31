@@ -35,36 +35,41 @@ time.sleep(1)
 
 # RL
 count_time_step = 0
-time_multiplier = 3
+time_multiplier = 5
 #
+for i in range(0, n):
+    virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
 
 movie_flag = False
-
 if not movie_flag:
-    for t in range(0, 500):
+    for t in range(1, 500):
         # RL
         count_time_step += 1
         if np.mod(count_time_step, time_multiplier) == 0:
-            grid, Astar_Movement = PathBuilder.build_trj(grid, drones)
+
+            grid.erase_corner_points()
+            grid.erase_interesting_points()
+            grid.find_corner_points()
+            grid.find_interesting_points()
+            grid.plot_corner_points()
+            grid.plot_interesting_points()
+
+            Astar_Movement = PathBuilder.build_trj(grid, drones)
             if Astar_Movement:
                 for i in range(0, n):
                     agents[i].astar_path = Astar_Movement[i]
-
         #
         for i in range(0, n):
-
             tof_list = drones[i].tof_sensing()
             grid.update_from_tof_sensing_list(tof_list)
-
-            if t == 0:
-                virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
-            agents[i].stop_command = False
-            # agents[i].prevent_collision( agents)
-            drones[i].stop_command = agents[i].stop_command
+            drones[i].prevent_collision(drones)
             neigbours_pos_list = drones[i].preform_step(drones)
             virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, neigbours_pos_list)
             drones[i].update_virtual_targets(virtual_target, virtual_heading)
             drones[i].plot_edges(env.ax_grid, agents[i].reduced_neigbours_pos_list)
+
+        for i in range(0, n):
+            drones[i].stop_command = False
 
         # grid.update_close_areas()
         grid.complete_wall_in_corners()
@@ -87,24 +92,41 @@ else: # Creating a movie
             # RL
             count_time_step += 1
             if np.mod(count_time_step, time_multiplier) == 0:
-                grid, Astar_Movement = PathBuilder.build_trj(grid, drones)
+
+                grid.erase_corner_points()
+                grid.erase_interesting_points()
+                grid.find_corner_points()
+                grid.find_interesting_points()
+                grid.plot_corner_points()
+                grid.plot_interesting_points()
+
+                Astar_Movement = PathBuilder.build_trj(grid, drones)
                 if Astar_Movement:
                     for i in range(0, n):
                         agents[i].astar_path = Astar_Movement[i]
             #
             for i in range(0, n):
-
                 tof_list = drones[i].tof_sensing()
                 grid.update_from_tof_sensing_list(tof_list)
-
-                if t == 0:
-                    virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
+                drones[i].prevent_collision(drones)
                 neigbours_pos_list = drones[i].preform_step(drones)
-                virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, neigbours_pos_list)
+                virtual_target, virtual_heading = agents[i].preform_step_sys_sim(drones[i].pos,
+                                                                                 drones[i].current_heading,
+                                                                                 neigbours_pos_list)
                 drones[i].update_virtual_targets(virtual_target, virtual_heading)
                 drones[i].plot_edges(env.ax_grid, agents[i].reduced_neigbours_pos_list)
 
+            for i in range(0, n):
+                drones[i].stop_command = False
+
+            # grid.update_close_areas()
             grid.complete_wall_in_corners()
+            # grid.change_tail_list_color(grid.outer_corner_tail_list, 'k')
+            # grid.find_outer_corners_tails()
+            # grid.change_tail_list_color(grid.outer_corner_tail_list, 'b')
+            # env.find_corner_points()
+            # env.plot_corner_points()
             env.fig.canvas.draw()
+            # env.fig_grid.canvas.draw()
             time.sleep(0.01)
             writer.grab_frame()

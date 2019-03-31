@@ -1,14 +1,16 @@
 import math
 import numpy as np
 from bresenham import bresenham
+import copy
 
 class Node:
 
-    def __init__(self, x, y, cost, pind):
+    def __init__(self, x, y, cost, pind, xy_idx):
         self.x = x
         self.y = y
         self.cost = cost
         self.pind = pind
+        self.xy_idx = xy_idx
 
 
 class Astar:
@@ -18,7 +20,7 @@ class Astar:
         self.scanning_range = scanning_range
         self.grid = grid
 
-    def PlanningAlg(self, sx, sy, gx, gy):
+    def PlanningAlg(self, sx, sy, gx, gy, corners_xy):
 
         # sx: start x position [m]
         # sy: start y position [m]
@@ -27,15 +29,17 @@ class Astar:
 
         mx = []
         my = []
-        for mpoint in self.grid.corner_points_list_xy:
+        idx_mxy = []
+        for midx, mpoint in enumerate(corners_xy):
             # mx: x position list of motion [m]
             # my: y position list of motion [m]
-            if mpoint[0] != gx and mpoint[1] != gy:
+            if not (mpoint[0] == gx and mpoint[1] == gy):
                 mx.append(mpoint[0])
                 my.append(mpoint[1])
+                idx_mxy.append(midx)
 
-        nstart = Node(sx, sy, 0, -1)
-        ngoal = Node(gx, gy, 0, -1)
+        nstart = Node(sx, sy, 0, -1, -1)
+        ngoal = Node(gx, gy, 0, -1, -1)
 
         obmap, minx, miny, maxx, maxy, xw, yw = self.calc_obstacle_map()
 
@@ -47,6 +51,7 @@ class Astar:
         if self.is_path_free(s_i, s_j, g_i, g_j, obmap):
             mx = []
             my = []
+            idx_mxy = []
 
         openset, closedset = dict(), dict()
         openset[self.calc_index(nstart, xw, minx, miny)] = nstart
@@ -57,7 +62,8 @@ class Astar:
                 c_id = min(openset, key=lambda o: openset[o].cost + self.calc_heuristic(ngoal, openset[o]))
             except:
                 Astar_path = []
-                return Astar_path
+                path_idxs = []
+                return Astar_path, path_idxs
 
             current = openset[c_id]
 
@@ -73,18 +79,18 @@ class Astar:
             # Add it to the closed set
             closedset[c_id] = current
 
-            motion = self.get_motion_model(mx, my, current, ngoal, self.grid_motion, obmap)
+            motion = self.get_motion_model(mx, my, current, ngoal, self.grid_motion, obmap, idx_mxy)
 
             # expand search grid based on motion model
             for i in range(len(motion)):
                 if self.grid_motion:
                     node = Node(current.x + motion[i][0],
                                 current.y + motion[i][1],
-                                current.cost + motion[i][2], c_id)
+                                current.cost + motion[i][2], c_id, -1)
                 else:
                     node = Node(int(motion[i][0]),
                                 int(motion[i][1]),
-                                current.cost + motion[i][2], c_id)
+                                current.cost + motion[i][2], c_id, motion[i][3])
 
                 n_id = self.calc_index(node, xw, minx, miny)
 
@@ -101,9 +107,10 @@ class Astar:
                         # This path is the best until now. record it!
                         openset[n_id] = node
 
-        Astar_path = self.calc_fianl_path(ngoal, closedset)
+        path_idxs, Astar_path = self.calc_fianl_path(ngoal, closedset)
 
-        return Astar_path
+        return Astar_path, path_idxs
+
 
     def calc_heuristic(self, n1, n2):
         w = 1.0  # weight of heuristic
@@ -152,7 +159,7 @@ class Astar:
     def calc_index(self, node, xwidth, xmin, ymin):
         return (node.y - ymin) * xwidth + (node.x - xmin)
 
-    def get_motion_model(self, mx, my, nstart, ngoal, grid_motion, obmap):
+    def get_motion_model(self, mx, my, nstart, ngoal, grid_motion, obmap, idx_mxy):
 
         okways = []
         if grid_motion:
@@ -168,7 +175,7 @@ class Astar:
 
         else:
 
-            allx, ally, allcost = [], [], []
+            allx, ally, allcost, allmidxs = [], [], [], []
             pradius = self.scanning_range
             # pradius = math.sqrt((nstart.x - ngoal.x) ** 2 + (nstart.y - ngoal.y) ** 2)
             for j, jend in enumerate(zip(mx, my)):
@@ -177,14 +184,16 @@ class Astar:
                     allx.append(jend[0])
                     ally.append(jend[1])
                     allcost.append(dcost)
+                    allmidxs.append(idx_mxy[j])
             allx.append(ngoal.x)
             ally.append(ngoal.y)
             allcost.append(math.sqrt((nstart.x - ngoal.x) ** 2 + (nstart.y - ngoal.y) ** 2))
-            for i, iend in enumerate(zip(allx, ally, allcost)):
+            allmidxs.append(-1)
+            for i, iend in enumerate(zip(allx, ally, allcost, allmidxs)):
                 s_i, s_j = self.grid.xy_to_ij(nstart.x, nstart.y)
                 g_i, g_j = self.grid.xy_to_ij(iend[0], iend[1])
                 if self.is_path_free(s_i, s_j, g_i, g_j, obmap):
-                    okways.append([iend[0], iend[1], iend[2]])
+                    okways.append([iend[0], iend[1], iend[2], iend[3]])
 
         return okways
 
@@ -203,6 +212,7 @@ class Astar:
     def calc_fianl_path(self, ngoal, closedset):
         # generate final path
         final_path = [[ngoal.x, ngoal.y]]
+        path_idxs = [-1]
         # rx, ry = [ngoal.x], [ngoal.y]
         pind = ngoal.pind
         while pind != -1:
@@ -211,46 +221,48 @@ class Astar:
             # ry.append(n.y)
             final_path.append([n.x, n.y])
             pind = n.pind
+            path_idxs.append(n.xy_idx)
 
-        return list(reversed(final_path))
+        return list(reversed(path_idxs)), list(reversed(final_path))
 
 
 def build_trj(grid, drones):
 
     Astar_Movement = []
-    grid.erase_corner_points()
-    grid.erase_interesting_points()
-    grid.find_corner_points()
-    grid.find_interesting_points()
-    grid.plot_corner_points()
-    grid.plot_interesting_points()
+    temp_corner_points_list_xy = copy.deepcopy(grid.corner_points_list_xy)
+    temp_interesting_points_list_xy = copy.deepcopy(grid.interesting_points_list_xy)
+    astar = Astar(0, drones[0].scanning_range, grid)
 
     for idx in range(len(drones)):
 
-        if len(grid.interesting_points_list_xy) > 0:
+        if len(temp_interesting_points_list_xy) > 0:
             if np.random.rand(1) < 0.1:
-                g_idx = np.random.randint(len(grid.interesting_points_list_xy))
+                g_idx = np.random.randint(len(temp_interesting_points_list_xy))
             else:
                 g_idx = 0
 
-            gx = grid.interesting_points_list_xy[g_idx][0]
-            gy = grid.interesting_points_list_xy[g_idx][1]
+            gx = temp_interesting_points_list_xy[g_idx][0]
+            gy = temp_interesting_points_list_xy[g_idx][1]
 
-            if (np.linalg.norm(drones[idx].pos[0] - [gx, gy]) < (1.5 * drones[idx].step_noise_size)) and len(grid.interesting_points_list_xy) >= 1:
-                g_idx = np.random.randint(len(grid.interesting_points_list_xy))
-                gx = grid.interesting_points_list_xy[g_idx][0]
-                gy = grid.interesting_points_list_xy[g_idx][1]
+            if (np.linalg.norm(drones[idx].pos[0] - [gx, gy]) < (1.5 * drones[idx].step_noise_size)) and len(temp_interesting_points_list_xy) >= 1:
+                g_idx = np.random.randint(len(temp_interesting_points_list_xy))
+                gx = temp_interesting_points_list_xy[g_idx][0]
+                gy = temp_interesting_points_list_xy[g_idx][1]
 
-            grid.change_tail_to_empty(grid.interesting_points_list_ij[g_idx][0], grid.interesting_points_list_ij[g_idx][1])
-            del grid.interesting_points_list_xy[g_idx]
-            del grid.interesting_points_list_ij[g_idx]
+            del temp_interesting_points_list_xy[g_idx]
 
-            astar = Astar(0, drones[idx].scanning_range, grid)
-            astar_movement = astar.PlanningAlg(drones[idx].pos[0][0], drones[idx].pos[0][1], gx, gy)
+            astar_movement, corner_idxs = astar.PlanningAlg(drones[idx].pos[0][0], drones[idx].pos[0][1], gx, gy, temp_corner_points_list_xy)
+
+            if len(corner_idxs) >= 3:
+                for ci in corner_idxs:
+                    if ci != -1:
+                        temp_corner_points_list_xy[ci] = []
+
+                temp_corner_points_list_xy = filter(None, temp_corner_points_list_xy)
 
             Astar_Movement.append(astar_movement[1:])
         else:
             Astar_Movement.append([])
             continue
 
-    return grid, Astar_Movement
+    return Astar_Movement

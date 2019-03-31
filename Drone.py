@@ -123,3 +123,11 @@ class Drone:
         # self.edg_to_neighbors_plot_hadels.clear() # not supported in python 2.7
         del self.edg_to_neighbors_plot_hadels[:]
 
+    def prevent_collision(self, drones):
+        for i in range(len(drones)):
+            s_next_pos = np.add(self.pos, np.multiply(self.vel, self.dt))
+            d_next_pos = np.add(drones[i].pos, np.multiply(drones[i].vel, drones[i].dt))
+            if (self.ID != drones[i].ID) and (
+                    np.linalg.norm(d_next_pos - s_next_pos) < (self.step_noise_size)) and (
+                    drones[i].stop_command != True):
+                self.stop_command = True

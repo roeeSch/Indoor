@@ -36,7 +36,11 @@ class Env:
             if y_lim[1] < self.border_polygon_for_grid[i][1]:
                 y_lim[1] = self.border_polygon_for_grid[i][1]
 
-        self.fig = plt.figure(figsize=(16, 8))
+        # self.fig = plt.figure(figsize=(16, 8))
+        self.fig = plt.figure()
+        mgr = plt.get_current_fig_manager()
+        mgr.full_screen_toggle()
+
         ax, ax_grid = self.fig.subplots(1, 2)
         plt.axis([x_lim[0], x_lim[1], y_lim[0], y_lim[1]])
         #ax = self.fig.add_subplot(111)
