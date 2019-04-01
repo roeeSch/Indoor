@@ -9,6 +9,8 @@ from Agent import Agent
 from Drone import Drone
 import PathBuilder
 
+np.random.seed(789)
+
 env = Env(10, 2, True)
 grid = Grid(env.border_polygon_for_grid, 10, env.ax_grid)
 grid.plot_grid()
@@ -18,6 +20,7 @@ env.plot_obs_array()
 env.fig.show()
 env.fig.canvas.draw()
 
+sleep_time = 0.01
 n = 5 # number of agents in the scenario
 agents = list()
 drones = list()
@@ -31,18 +34,19 @@ for i in range(0, n):
 
 env.fig.show()
 env.fig.canvas.draw()
-time.sleep(1)
+time.sleep(sleep_time)
 
 # RL
 count_time_step = 0
-time_multiplier = 5
+time_multiplier = 7
+num_of_iter = 1000
 #
 for i in range(0, n):
     virtual_target, virtual_heading = agents[i].get_virtual_target_and_heading()
 
 movie_flag = False
 if not movie_flag:
-    for t in range(1, 500):
+    for t in range(1, num_of_iter):
         # RL
         count_time_step += 1
         if np.mod(count_time_step, time_multiplier) == 0:
@@ -54,7 +58,7 @@ if not movie_flag:
             grid.plot_corner_points()
             grid.plot_interesting_points()
 
-            Astar_Movement = PathBuilder.build_trj(grid, drones)
+            Astar_Movement = PathBuilder.build_trj(drones, grid.corner_points_list_xy, grid.interesting_points_list_xy, grid.x_lim, grid.y_lim, grid.matrix, grid.res)
             if Astar_Movement:
                 for i in range(0, n):
                     agents[i].astar_path = Astar_Movement[i]
@@ -80,7 +84,7 @@ if not movie_flag:
         #env.plot_corner_points()
         env.fig.canvas.draw()
         #env.fig_grid.canvas.draw()
-        time.sleep(0.01)
+        time.sleep(sleep_time)
 
 else: # Creating a movie
     FFMpegWriter = manimation.writers['ffmpeg']
@@ -88,7 +92,7 @@ else: # Creating a movie
                     comment='Movie support!')
     writer = FFMpegWriter(fps=10, metadata=metadata)
     with writer.saving(env.fig, "writer_test.mp4", 100):
-        for t in range(0, 500):
+        for t in range(1, num_of_iter):
             # RL
             count_time_step += 1
             if np.mod(count_time_step, time_multiplier) == 0:
@@ -100,7 +104,9 @@ else: # Creating a movie
                 grid.plot_corner_points()
                 grid.plot_interesting_points()
 
-                Astar_Movement = PathBuilder.build_trj(grid, drones)
+                Astar_Movement = PathBuilder.build_trj(drones, grid.corner_points_list_xy,
+                                                       grid.interesting_points_list_xy, grid.x_lim, grid.y_lim,
+                                                       grid.matrix, grid.res)
                 if Astar_Movement:
                     for i in range(0, n):
                         agents[i].astar_path = Astar_Movement[i]
@@ -128,5 +134,5 @@ else: # Creating a movie
             # env.plot_corner_points()
             env.fig.canvas.draw()
             # env.fig_grid.canvas.draw()
-            time.sleep(0.01)
+            time.sleep(sleep_time)
             writer.grab_frame()

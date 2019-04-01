@@ -15,10 +15,13 @@ class Node:
 
 class Astar:
 
-    def __init__(self, grid_motion, scanning_range, grid):
+    def __init__(self, grid_motion, scanning_range, x_lim, y_lim, matrix, res):
         self.grid_motion = grid_motion
         self.scanning_range = scanning_range
-        self.grid = grid
+        self.x_lim = x_lim
+        self.y_lim = y_lim
+        self.matrix = matrix
+        self.res = res
 
     def PlanningAlg(self, sx, sy, gx, gy, corners_xy):
 
@@ -46,8 +49,8 @@ class Astar:
         # fig = plt.figure(45645)
         # plt.imshow(np.transpose(obmap), origin='lower')
 
-        g_i, g_j = self.grid.xy_to_ij(gx, gy)
-        s_i, s_j = self.grid.xy_to_ij(sx, sy)
+        g_i, g_j = self.xy_to_ij(gx, gy)
+        s_i, s_j = self.xy_to_ij(sx, sy)
         if self.is_path_free(s_i, s_j, g_i, g_j, obmap):
             mx = []
             my = []
@@ -67,7 +70,7 @@ class Astar:
 
             current = openset[c_id]
 
-            c_i, c_j = self.grid.xy_to_ij(current.x, current.y)
+            c_i, c_j = self.xy_to_ij(current.x, current.y)
             if c_i == g_i and c_j == g_j:
                 # print("Find goal")
                 ngoal.pind = current.pind
@@ -129,7 +132,7 @@ class Astar:
         elif node.y >= maxy:
             return False
 
-        i,j = self.grid.xy_to_ij(node.x, node.y)
+        i,j = self.xy_to_ij(node.x, node.y)
         if obmap[i][j]:
             return False
 
@@ -137,21 +140,21 @@ class Astar:
 
     def calc_obstacle_map(self):
 
-        minx = self.grid.x_lim[0]
-        miny = self.grid.y_lim[0]
-        maxx = self.grid.x_lim[1]
-        maxy = self.grid.y_lim[1]
+        minx = self.x_lim[0]
+        miny = self.y_lim[0]
+        maxx = self.x_lim[1]
+        maxy = self.y_lim[1]
 
         xwidth = round(maxx - minx)
         ywidth = round(maxy - miny)
 
-        nrow, ncol = np.shape(self.grid.matrix)
+        nrow, ncol = np.shape(self.matrix)
         # obstacle map generation
         obmap = np.zeros((nrow, ncol), dtype=bool)
 
         for ix in range(nrow):
             for iy in range(ncol):
-                if self.grid.matrix[ix][iy] != 1:
+                if self.matrix[ix][iy] != 1:
                     obmap[ix][iy] = True
 
         return obmap, minx, miny, maxx, maxy, xwidth, ywidth
@@ -190,8 +193,8 @@ class Astar:
             allcost.append(math.sqrt((nstart.x - ngoal.x) ** 2 + (nstart.y - ngoal.y) ** 2))
             allmidxs.append(-1)
             for i, iend in enumerate(zip(allx, ally, allcost, allmidxs)):
-                s_i, s_j = self.grid.xy_to_ij(nstart.x, nstart.y)
-                g_i, g_j = self.grid.xy_to_ij(iend[0], iend[1])
+                s_i, s_j = self.xy_to_ij(nstart.x, nstart.y)
+                g_i, g_j = self.xy_to_ij(iend[0], iend[1])
                 if self.is_path_free(s_i, s_j, g_i, g_j, obmap):
                     okways.append([iend[0], iend[1], iend[2], iend[3]])
 
@@ -225,13 +228,18 @@ class Astar:
 
         return list(reversed(path_idxs)), list(reversed(final_path))
 
+    def xy_to_ij(self, x, y):
+        i = int(np.floor((x - self.x_lim[0]) / self.res))
+        j = int(np.floor((y - self.y_lim[0]) / self.res))
+        return i, j
 
-def build_trj(grid, drones):
+
+def build_trj(drones, corner_points_list_xy, interesting_points_list_xy, x_lim, y_lim, matrix, res):
 
     Astar_Movement = []
-    temp_corner_points_list_xy = copy.deepcopy(grid.corner_points_list_xy)
-    temp_interesting_points_list_xy = copy.deepcopy(grid.interesting_points_list_xy)
-    astar = Astar(0, drones[0].scanning_range, grid)
+    temp_corner_points_list_xy = copy.deepcopy(corner_points_list_xy)
+    temp_interesting_points_list_xy = copy.deepcopy(interesting_points_list_xy)
+    astar = Astar(0, drones[0].scanning_range, x_lim, y_lim, matrix, res)
 
     for idx in range(len(drones)):
 

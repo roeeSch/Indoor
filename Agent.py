@@ -27,7 +27,7 @@ class Agent:
         self.current_pos = self.next_pos
         self.next_heading = 0
         self.current_heading = self.next_heading
-        self.VisibilityRange = 300.
+        self.VisibilityRange = 300
         self.scanning_range = 200
         self.repulse_range = self.VisibilityRange/10
         self.pull_range = self.VisibilityRange*4/5
@@ -132,7 +132,7 @@ class Agent:
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
             if grid.is_step_legal(self.current_pos, step):
                 flag = True
-                if np.random.rand(1) < 0.8:
+                if np.random.rand(1) < 0.8:#0.8
                     for neighbor_pos in NeighborsPosList:
                         if self.outOfLimit_Ando(neighbor_pos, step):
                             flag = False

@@ -350,7 +350,9 @@ class Grid:
                 cnt_wall = cnt_wall + 1
             if (self.matrix[i][j] == 1) and (self.matrix[ind_list[k][0] + i][ind_list[k][1] + j] == 0):
                 cnt_unexplored = cnt_unexplored + 1
-        if ((cnt_wall >= 1) and (cnt_unexplored >= 1)) or (cnt_unexplored >= 4):
+        if ((cnt_wall == 4) and (cnt_unexplored == 1)):
+            return False
+        if ((cnt_wall >= 1) and (cnt_unexplored >= 1)):# or cnt_unexplored >= 4:
             return True
         else:
             return False
@@ -378,10 +380,10 @@ class Grid:
         for i in range(1, self.matrix.__len__()-1):
             for j in range(1, self.matrix[i].__len__()-1):
                 if self.is_tail_interesting(i, j):
-                    if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
-                        tail_list.append([i, j])
-                        sequence_cnt[i][j] = 1
-                    # tail_list.append([i, j])
+                    # if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
+                    #     tail_list.append([i, j])
+                    #     sequence_cnt[i][j] = 1
+                    tail_list.append([i, j])
         return tail_list
 
     def find_interesting_points(self):
