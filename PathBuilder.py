@@ -234,11 +234,9 @@ class Astar:
         return i, j
 
 
-def build_trj(drones, corner_points_list_xy, interesting_points_list_xy, x_lim, y_lim, matrix, res):
+def build_trj(drones, temp_corner_points_list_xy, temp_interesting_points_list_xy, x_lim, y_lim, matrix, res):
 
     Astar_Movement = []
-    temp_corner_points_list_xy = copy.deepcopy(corner_points_list_xy)
-    temp_interesting_points_list_xy = copy.deepcopy(interesting_points_list_xy)
     astar = Astar(0, drones[0].scanning_range, x_lim, y_lim, matrix, res)
 
     for idx in range(len(drones)):
