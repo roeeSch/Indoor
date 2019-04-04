@@ -1,9 +1,9 @@
 import matplotlib.pyplot as plt
 import numpy as np
-import EnvSim
+
 
 class Drone:
-    def __init__(self, AgentID, pos, heading_ang, env, ax_env, ax_grid):
+    def __init__(self, AgentID, pos, heading_ang, env):
         self.ID = AgentID
         self.env = env
         self.is_alive = True
@@ -23,20 +23,8 @@ class Drone:
         self.scanning_range = 200 #[cm]
         self.neighbours_visibility_range = 400 #cm
         self.dt = 0.1 #[sec]
-        self.stop_command = False #RL
-
-        self.ax_env = ax_env
-        self.ax_grid = ax_grid
-        self.plot_color = 'ob'
-        self.plot_hadel_env, = ax_env.plot(self.pos[0][0], self.pos[0][1], 'ob')
-        self.plot_hadel_grid, = ax_grid.plot(self.pos[0][0], self.pos[0][1], 'ob')
-        self.plot_hadel_env_vt, = ax_env.plot(self.pos[0][0], self.pos[0][1], 'or')
-        self.plot_hadel_grid_vt, = ax_grid.plot(self.pos[0][0], self.pos[0][1], 'or')
-        self.plot_hadel_env_l2vt, = ax_env.plot([self.pos[0][0], self.pos[0][0]], [self.pos[0][1], self.pos[0][1]], '--r')
-        self.plot_hadel_grid_l2vt, = ax_grid.plot([self.pos[0][0], self.pos[0][0]], [self.pos[0][1], self.pos[0][1]], '--r')
-        self.edg_to_neighbors_plot_hadels = list()
-
-        #self.edg_to_neighbors_plot_hadels = list()
+        self.stop_command = False
+        self.neighbors_pos = list()
 
     def update_position(self):
         next_pos = np.add(self.pos, np.multiply(self.vel, self.dt))
@@ -77,14 +65,6 @@ class Drone:
         self.virtual_target = virtual_target
         self.virtual_heading = virtual_heading_target
 
-    def update_drone_plot(self):
-        self.plot_hadel_env.set_data(self.pos[0][0], self.pos[0][1])
-        self.plot_hadel_grid.set_data(self.pos[0][0], self.pos[0][1])
-        self.plot_hadel_env_vt.set_data(self.virtual_target[0][0], self.virtual_target[0][1])
-        self.plot_hadel_grid_vt.set_data(self.virtual_target[0][0], self.virtual_target[0][1])
-        self.plot_hadel_env_l2vt.set_data([self.pos[0][0], self.virtual_target[0][0]], [self.pos[0][1], self.virtual_target[0][1]])
-        self.plot_hadel_grid_l2vt.set_data([self.pos[0][0], self.virtual_target[0][0]], [self.pos[0][1], self.virtual_target[0][1]])
-
     def tof_sensing(self):
         output_list = list()
         directions_vec = np.add([0, np.pi/2, np.pi, 3*np.pi/2], self.current_heading)
@@ -103,25 +83,12 @@ class Drone:
         return neighbors_pos
 
     def preform_step(self, drone_arr):
-        if not self.stop_command:
-            self.update_position()
-            self.update_velocity()
-            self.update_ang()
-        neighbors_pos = self.neighbors_sensing(drone_arr)
-        self.update_drone_plot()
-        return neighbors_pos
-
-    def plot_edges(self, ax, neighbors_list):
-        self.delete_edges()
-        for pos in neighbors_list:
-            edge = ax.plot([self.pos[0][0], self.pos[0][0]+pos[0][0]], [self.pos[0][1], self.pos[0][1]+pos[0][1]])
-            self.edg_to_neighbors_plot_hadels.append(edge)
-
-    def delete_edges(self):
-        for edge_handel in self.edg_to_neighbors_plot_hadels:
-            edge_handel[0].remove()
-        # self.edg_to_neighbors_plot_hadels.clear() # not supported in python 2.7
-        del self.edg_to_neighbors_plot_hadels[:]
+        # self.prevent_collision(drone_arr)
+        # if not self.stop_command:
+        self.update_position()
+        self.update_velocity()
+        self.update_ang()
+        self.neighbors_pos = self.neighbors_sensing(drone_arr)
 
     def prevent_collision(self, drones):
         for i in range(len(drones)):

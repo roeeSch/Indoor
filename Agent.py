@@ -43,8 +43,6 @@ class Agent:
         self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
         self.next_heading = np.random.rand() * np.pi / 4
 
-        return self.get_virtual_target_and_heading()
-
 
     def Dynam_Search_in_maze(self, NeighborsPosList, matrix):
 

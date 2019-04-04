@@ -1,14 +1,9 @@
-import matplotlib.pyplot as plt
 import numpy as np
-
-
 from shapely.geometry import Point, LineString, Polygon
-from descartes import PolygonPatch
-from Grid import Grid
 
 class Env:
 
-    def __init__(self, res, maze_case, grid_flag):
+    def __init__(self, res, maze_case):
         self.obs_array = list()
         self.obs_vertex_list = []
         self.target_handel = []
@@ -36,46 +31,8 @@ class Env:
             if y_lim[1] < self.border_polygon_for_grid[i][1]:
                 y_lim[1] = self.border_polygon_for_grid[i][1]
 
-        # self.fig = plt.figure(figsize=(16, 8))
-        self.fig = plt.figure()
-        mgr = plt.get_current_fig_manager()
-        mgr.full_screen_toggle()
-
-        ax, ax_grid = self.fig.subplots(1, 2)
-        plt.axis([x_lim[0], x_lim[1], y_lim[0], y_lim[1]])
-        #ax = self.fig.add_subplot(111)
-        self.ax = ax
-
-        #self.fig_grid = plt.figure()
-        #plt.axis([x_lim[0], x_lim[1], y_lim[0], y_lim[1]])
-        #ax_grid = self.fig_grid.add_subplot(111)
-        self.ax_grid = ax_grid
-
-        self.grid_flag = grid_flag
-        # if grid_flag:
-        #     self.grid = Grid(self.border_polygon_for_grid, res, ax_grid)
-        #     self.grid.plot_grid()
-        #     self.grid.mark_enterence_as_closed_area(self)
-        if self.target_alive:
-            self.plot_target()
-        self.interesting_points_list = list()
-        self.interesting_points_handel_list = list()
-        self.outer_corner_tail_list = list()
-
-    def plot_target(self):
-        self.target_handel = self.ax.plot(self.target_pos[0][0], self.target_pos[0][1], 'ro', markersize=20)
-
-    def plot_border(self):
-        border_polygon_patch = PolygonPatch(self.border_polygon, facecolor='white')
-        self.ax.add_patch(border_polygon_patch)
-
     def is_in_border_polygon(self, pos):
         return self.border_polygon.contains(Point(pos[0][0], pos[0][1]))
-
-    def plot_obs_array(self):
-        for obs in self.obs_array:
-            border_polygon_patch = PolygonPatch(obs, facecolor='orange')
-            self.ax.add_patch(border_polygon_patch)
 
     def is_in_obs(self, pos):
         for obs in self.obs_array:
@@ -87,12 +44,7 @@ class Env:
         new_pos = curr_pos + step
         if not self.is_in_border_polygon(new_pos):
             return  False
-        if self.grid_flag:
-            if not self.grid.is_in_close_area_xy(curr_pos) and self.grid.is_in_close_area_xy(new_pos):
-                return False
-            return self.grid.is_los(curr_pos, new_pos)
-        else:
-            return self.is_los(curr_pos, new_pos)
+        return self.is_los(curr_pos, new_pos)
 
     def is_los(self, p1, p2):
         line = LineString([(p1[0][0], p1[0][1]), (p2[0][0], p2[0][1])])
@@ -154,15 +106,6 @@ class Env:
             if self.is_los_to_trg(pos):
                 return True
         return False
-
-    def plot_homing(self, pos, killing_range):
-        if self.los_to_target_handel.__len__() > 0:
-            self.los_to_target_handel[0].remove()
-        self.los_to_target_handel = self.ax.plot([pos[0][0], self.target_pos[0][0]], [pos[0][1], self.target_pos[0][1]],'y')
-        if np.linalg.norm(pos - self.target_pos) < killing_range:
-            if self.target_alive:
-                self.target_handel[0].remove()
-                self.target_alive = False
 
     def build_wall(self, nw, se):
         # The polygon coordinate is from Barel's xls, in cell indices
@@ -267,7 +210,6 @@ class Env:
         obs_array.append([(-60, 60), (-60, 55), (60, 55), (60, 60), (-60, 60)])
         obs_array.append([(60, 60), (55, 60), (55, -60), (60, -60), (60, 60)])
         obs_array.append([(-60, 60), (-55, 60), (-55, -60), (-60, -60), (-60, 60)])
-
 
         for obs in obs_array:
             self.obs_array.append(Polygon(obs))

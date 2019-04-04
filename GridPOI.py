@@ -6,12 +6,17 @@ class GridPOI:
         self.res = res
         self.x_lim = x_lim
         self.y_lim = y_lim
+        self.interesting_points_list_ij = []
+        self.interesting_points_list_xy = []
+        self.corner_points_list_ij = []
+        self.corner_points_list_xy = []
+        self.wall_idxs_ij = []
+        self.wall_idxs_xy = []
 
     def find_POI(self, matrix):
-        interesting_points_list_ij, interesting_points_list_xy = self.find_interesting_points(matrix)
-        corner_points_list_ij, corner_points_list_xy = self.find_corner_points(matrix)
-        wall_idxs_ij, wall_idxs_xy = self.complete_wall_in_corners(matrix)
-        return interesting_points_list_ij, interesting_points_list_xy, corner_points_list_ij, corner_points_list_xy, wall_idxs_ij, wall_idxs_xy
+        self.interesting_points_list_ij, self.interesting_points_list_xy = self.find_interesting_points(matrix)
+        self.corner_points_list_ij, self.corner_points_list_xy = self.find_corner_points(matrix)
+        self.wall_idxs_ij = self.complete_wall_in_corners(matrix)
 
     def find_interesting_points(self, matrix):
         interesting_points_list_ij = []
@@ -48,10 +53,10 @@ class GridPOI:
         for i in range(1, matrix.__len__()-1):
             for j in range(1, matrix[i].__len__()-1):
                 if self.is_tail_interesting(i, j, matrix):
-                    if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
-                        tail_list.append([i, j])
-                        sequence_cnt[i][j] = 1
-                    # tail_list.append([i, j])
+                    # if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
+                    #     tail_list.append([i, j])
+                    #     sequence_cnt[i][j] = 1
+                    tail_list.append([i, j])
         return tail_list
 
 
@@ -100,7 +105,7 @@ class GridPOI:
 
     def complete_wall_in_corners(self, matrix):
         wall_idxs_ij = []
-        wall_idxs_xy = []
+        # wall_idxs_xy = []
         for i in range(1, matrix.__len__()-1):
             for j in range(1, matrix[i].__len__()-1):
                 if matrix[i][j] == 0:
@@ -110,14 +115,14 @@ class GridPOI:
                         (matrix[i - 1][j] == 2 and matrix[i][j + 1] == 2 and (matrix[i - 1][j + 1] == 1 or matrix[i - 1][j + 1] == 3))):
                         # change_tail_to_wall(i, j) # Originally
                         wall_idxs_ij.append([i,j])
-                        wall_idxs_xy.append([self.ij_to_xy(i, j)])
+                        # wall_idxs_xy.append([self.ij_to_xy(i, j)])
         j = 0
         for i in range(1, matrix.__len__()-1):
             if (matrix[i][j] == 0 and
                     (matrix[i + 1][j] == 2 and matrix[i][j + 1] == 2 and (matrix[i + 1][j + 1] == 1 or matrix[i + 1][j + 1] == 3)) or
                     (matrix[i - 1][j] == 2 and matrix[i][j + 1] == 2 and (matrix[i - 1][j + 1] == 1 or matrix[i - 1][j + 1] == 3))):
                 wall_idxs_ij.append([i, j])
-                wall_idxs_xy.append([self.ij_to_xy(i, j)])
+                # wall_idxs_xy.append([self.ij_to_xy(i, j)])
 
         j = matrix[0].__len__()-1
         for i in range(1, matrix.__len__() - 1):
@@ -125,7 +130,7 @@ class GridPOI:
                     (matrix[i - 1][j] == 2 and matrix[i][j - 1] == 2 and (matrix[i - 1][j - 1] == 1 or matrix[i - 1][j - 1] == 3)) or
                     (matrix[i + 1][j] == 2 and matrix[i][j - 1] == 2 and (matrix[i + 1][j - 1] == 1 or matrix[i + 1][j - 1] == 3))):
                 wall_idxs_ij.append([i, j])
-                wall_idxs_xy.append([self.ij_to_xy(i, j)])
+                # wall_idxs_xy.append([self.ij_to_xy(i, j)])
 
         i = 0
         for j in range(1, matrix[0].__len__()-1):
@@ -133,7 +138,7 @@ class GridPOI:
                     (matrix[i + 1][j] == 2 and matrix[i][j - 1] == 2 and (matrix[i + 1][j - 1] == 1 or matrix[i - 1][j - 1] == 3)) or
                     (matrix[i + 1][j] == 2 and matrix[i][j + 1] == 2 and (matrix[i + 1][j + 1] == 1 or matrix[i + 1][j - 1] == 3))):
                 wall_idxs_ij.append([i, j])
-                wall_idxs_xy.append([self.ij_to_xy(i, j)])
+                # wall_idxs_xy.append([self.ij_to_xy(i, j)])
 
         i = matrix.__len__()-1
         for j in range(1, matrix[0].__len__() - 1):
@@ -141,32 +146,32 @@ class GridPOI:
                     (matrix[i - 1][j] == 2 and matrix[i][j - 1] == 2 and (matrix[i - 1][j - 1] == 1 or matrix[i - 1][j - 1] == 3)) or
                     (matrix[i - 1][j] == 2 and matrix[i][j + 1] == 2 and (matrix[i - 1][j + 1] == 1 or matrix[i - 1][j + 1] == 3))):
                 wall_idxs_ij.append([i, j])
-                wall_idxs_xy.append([self.ij_to_xy(i, j)])
+                # wall_idxs_xy.append([self.ij_to_xy(i, j)])
 
         if (matrix[0][0] == 0 and
                     (matrix[0][1] == 2 and matrix[1][0] == 2)):
                 # change_tail_to_wall(0, 0)
                 wall_idxs_ij.append([0, 0])
-                wall_idxs_xy.append([self.ij_to_xy(0, 0)])
+                # wall_idxs_xy.append([self.ij_to_xy(0, 0)])
 
         if (matrix[0][matrix[0].__len__()-1] == 0 and
                 (matrix[0][matrix[0].__len__()-2] == 2 and matrix[1][matrix[0].__len__()-1] == 2)):
             # change_tail_to_wall(0, matrix[0].__len__()-1)
             wall_idxs_ij.append([0, matrix[0].__len__()-1])
-            wall_idxs_xy.append([self.ij_to_xy(0, matrix[0].__len__()-1)])
+            # wall_idxs_xy.append([self.ij_to_xy(0, matrix[0].__len__()-1)])
 
         if (matrix[matrix.__len__()-1][matrix[0].__len__()-1] == 0 and
                 (matrix[matrix[0].__len__()-1][matrix[0].__len__()-2] == 2 and matrix[matrix[0].__len__()-2][matrix[0].__len__()-1] == 2)):
             # change_tail_to_wall(matrix.__len__()-1, matrix[0].__len__()-1)
             wall_idxs_ij.append([matrix.__len__()-1, matrix[0].__len__()-1])
-            wall_idxs_xy.append([self.ij_to_xy(matrix.__len__()-1, matrix[0].__len__()-1)])
+            # wall_idxs_xy.append([self.ij_to_xy(matrix.__len__()-1, matrix[0].__len__()-1)])
 
         if (matrix[matrix.__len__()-1][0] == 0 and
                 (matrix[matrix[0].__len__()-1][1] == 2 and matrix[matrix[0].__len__()-2][0] == 2)):
             # change_tail_to_wall(matrix.__len__()-1, 0)
             wall_idxs_ij.append([matrix.__len__()-1, 0])
-            wall_idxs_xy.append([self.ij_to_xy(matrix.__len__()-1, 0)])
+            # wall_idxs_xy.append([self.ij_to_xy(matrix.__len__()-1, 0)])
 
-        return wall_idxs_ij, wall_idxs_xy
+        return wall_idxs_ij
 
 
