@@ -5,24 +5,26 @@ import numpy as np
 class Drone:
     def __init__(self, AgentID, pos, heading_ang, env):
         self.ID = AgentID
+        self.ref_ID = AgentID - 1
         self.env = env
         self.is_alive = True
-        self.acc_factor = 10
-        self.ang_vel_fac = 10
+        # self.acc_factor = 10
+        # self.ang_vel_fac = 10
         self.acc_lim = 100 #[cm^2/sec]
         self.vel_lim = 100 #[cd/sec]
         self.ang_vel_lim = np.pi #[rad/sec]
         self.step_noise_size = 20
-        self.stepSizeLimit = 30
+        self.step_size_limit = 30
         self.virtual_target = pos
         self.pos = pos
+        self.init_pos = pos
         self.virtual_heading = heading_ang
         self.current_heading = heading_ang
         self.vel = [0, 0]   #[cm/sec X 2]
         self.ang_vel = 0    #[cd/sec]
         self.scanning_range = 200 #[cm]
         self.neighbours_visibility_range = 400 #cm
-        self.dt = 0.1 #[sec]
+        self.dt = 0.2 #[sec]
         self.stop_command = False
         self.neighbors_pos = list()
 
@@ -41,8 +43,12 @@ class Drone:
         #     #else: # Note that we have a problem
 
     def update_velocity(self):
+        # pos_diff = np.subtract(self.virtual_target, self.pos)
+        # des_vel = np.divide(pos_diff, self.dt)
         des_vel = np.subtract(self.virtual_target, self.pos)
-        acc = np.multiply(self.acc_factor, (des_vel - self.vel))
+        vel_diff = np.subtract(des_vel, self.vel)
+        acc = np.divide(vel_diff, self.dt)
+        # acc = np.multiply(self.acc_factor, (des_vel - self.vel))
         acc_norm = np.linalg.norm(acc)
         if acc_norm > self.acc_lim:
             acc = np.multiply(acc / acc_norm, self.acc_lim)

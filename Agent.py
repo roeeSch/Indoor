@@ -9,13 +9,13 @@ class Agent:
         self.velocityFactor = 50
         self.step_noise_size = 20
         self.step_snr = 1
-        self.stepSizeLimit = 30
+        self.step_size_limit = 30
         self.step_factor = 1
         self.next_pos = pos
         self.current_pos = self.next_pos
         self.next_heading = 0
         self.current_heading = self.next_heading
-        self.VisibilityRange = 300
+        self.VisibilityRange = 400
         self.scanning_range = 200
         self.repulse_range = self.VisibilityRange/10
         self.pull_range = self.VisibilityRange*4/5
@@ -37,18 +37,18 @@ class Agent:
         return self.next_pos, self.next_heading
 
 
-    def preform_step_sys_sim(self, current_pos, current_heading, neigbours_pos_list, matrix):
+    def preform_step_sys_sim(self, current_pos, current_heading, matrix, neigbours_pos_list, ref_drone_pos):
         self.update_current_state(current_pos, current_heading)
         self.reduced_neigbours_pos_list = self.neighborhood_reduction(neigbours_pos_list, matrix)
-        self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
+        # ref_neigbour_pos = np.subtract(ref_drone_pos, current_pos)
+        self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix, ref_drone_pos[0])
         self.next_heading = np.random.rand() * np.pi / 4
 
 
-    def Dynam_Search_in_maze(self, NeighborsPosList, matrix):
+    def Dynam_Search_in_maze(self, NeighborsPosList, matrix, ref_drone_pos):
 
         max_count_val = 15
         break_counter = 0
-        vec = np.zeros(2)
         flag = False
 
         try:
@@ -60,16 +60,21 @@ class Agent:
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
             if self.is_step_legal(self.current_pos, step, matrix):
                 flag = True
-                if np.random.rand(1) < 0.8:
-                    for neighbor_pos in NeighborsPosList:
-                        if self.outOfLimit_Ando(neighbor_pos, step):
-                            flag = False
-                            break
-                        if not self.is_step_in_corridor(step, neighbor_pos, matrix):
-                            flag = False
-                            break
-                    else:
-                        break
+                p1 = self.current_pos + step
+                p2 = ref_drone_pos
+                neighbor_pos = np.subtract(ref_drone_pos, self.current_pos)
+                if not self.is_los(p1, p2, matrix):
+                    flag = False
+                if not self.is_step_in_corridor(step, neighbor_pos, matrix):
+                    flag = False
+
+                # for neighbor_pos in NeighborsPosList:
+                #     if self.outOfLimit_Ando(neighbor_pos, step):
+                #         flag = False
+                #         break
+                #     if not self.is_step_in_corridor(step, neighbor_pos, matrix):
+                #         flag = False
+                #         break
 
         if break_counter < max_count_val:
             self.next_pos = self.current_pos + step

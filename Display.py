@@ -63,7 +63,8 @@ class Display:
         self.fig.canvas.draw()
 
 
-    def plot_step(self, virtual_target_pos, empty_idxs, wall_idxs, neighbors_list, drone_pos, drone_idx, interesting_points_list_ij, corner_points_list_ij, wall_corner_idx):
+    def plot_step(self, virtual_target_pos, empty_idxs, wall_idxs, neighbors_list, drone_pos, drone_idx,
+                  interesting_points_list_ij, corner_points_list_ij, wall_corner_idx, ref_drone_pos):
         for tail in empty_idxs:
             self.change_tail_to_empty(tail[0],tail[1])
         for tail in wall_idxs:
@@ -73,7 +74,7 @@ class Display:
         self.plot_interesting_points(interesting_points_list_ij)
         self.plot_corner_points(corner_points_list_ij)
         self.update_drone_plot(drone_pos, virtual_target_pos, drone_idx)
-        self.plot_edges(neighbors_list, drone_pos, drone_idx)
+        self.plot_edges(neighbors_list, drone_pos, drone_idx, ref_drone_pos)
 
 
     def plot_interesting_points(self, interesting_points_list_ij):
@@ -161,13 +162,17 @@ class Display:
         self.plot_handel_envs_l2vt[drone_idx].set_data([real_target[0][0], virtual_target[0][0]], [real_target[0][1], virtual_target[0][1]])
         self.plot_handel_grids_l2vt[drone_idx].set_data([real_target[0][0], virtual_target[0][0]], [real_target[0][1], virtual_target[0][1]])
 
-    def plot_edges(self, neighbors_list, drone_pos, drone_idx):
-        self.delete_edges(drone_idx)
-        edges = []
-        for pos in neighbors_list:
-            edge = self.ax_grid.plot([drone_pos[0][0], drone_pos[0][0]+pos[0][0]], [drone_pos[0][1], drone_pos[0][1]+pos[0][1]])
+    def plot_edges(self, neighbors_list, drone_pos, drone_idx, ref_drone_pos):
+        if drone_idx != 0:
+            self.delete_edges(drone_idx)
+            edges = []
+            edge = self.ax_grid.plot([drone_pos[0][0], ref_drone_pos[0][0]], [drone_pos[0][1], ref_drone_pos[0][1]])
             edges.append(edge)
-        self.edg_to_neighbors_plot_handels[drone_idx] = edges
+            self.edg_to_neighbors_plot_handels[drone_idx] = edges
+            # for pos in neighbors_list:
+            #     edge = self.ax_grid.plot([drone_pos[0][0], drone_pos[0][0]+pos[0][0]], [drone_pos[0][1], drone_pos[0][1]+pos[0][1]])
+            #     edges.append(edge)
+            # self.edg_to_neighbors_plot_handels[drone_idx] = edges
 
     def delete_edges(self, drone_idx):
         for edge_handel in self.edg_to_neighbors_plot_handels[drone_idx]:
