@@ -53,10 +53,10 @@ class GridPOI:
         for i in range(1, matrix.__len__()-1):
             for j in range(1, matrix[i].__len__()-1):
                 if self.is_tail_interesting(i, j, matrix):
-                    # if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
-                    #     tail_list.append([i, j])
-                    #     sequence_cnt[i][j] = 1
-                    tail_list.append([i, j])
+                    if sequence_cnt[i-1][j-1] == 0 and sequence_cnt[i][j-1] == 0 and sequence_cnt[i-1][j] == 0:
+                        tail_list.append([i, j])
+                        sequence_cnt[i][j] = 1
+                    # tail_list.append([i, j])
         return tail_list
 
 

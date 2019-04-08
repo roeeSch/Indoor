@@ -15,7 +15,7 @@ from Display import Display
 sleep_time = 0.01
 num_of_agents = 5
 count_time_step = 0
-time_multiplier = 3
+time_multiplier = 5
 num_of_iter = 1000
 
 env = Env(10, 2)
@@ -70,7 +70,8 @@ if not movie_flag:
             agents[i].preform_step_sys_sim(drones[i].pos, drones[i].current_heading, grid.matrix, drones[i].neighbors_pos, ref_drone_pos)
             drones[i].update_virtual_targets(agents[i].next_pos, agents[i].next_heading)
             display.plot_step(agents[i].next_pos, grid.empty_idxs, grid.wall_idxs, agents[i].reduced_neigbours_pos_list,
-                              drones[i].pos, i, grid_poi.interesting_points_list_ij, grid_poi.corner_points_list_ij, grid_poi.wall_idxs_ij, ref_drone_pos)
+                              drones[i].pos, i, grid_poi.interesting_points_list_ij, grid_poi.corner_points_list_ij,
+                              grid_poi.wall_idxs_ij, ref_drone_pos[0])
 
         # for i in range(0, num_of_agents):
         #     drones[i].stop_command = False

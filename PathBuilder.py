@@ -158,8 +158,8 @@ class Astar:
 
         okways = []
         allx, ally, allcost, allmidxs = [], [], [], []
-        pradius = self.scanning_range
-        # pradius = math.sqrt((nstart.x - ngoal.x) ** 2 + (nstart.y - ngoal.y) ** 2)
+        # pradius = self.scanning_range
+        pradius = math.sqrt((nstart.x - ngoal.x) ** 2 + (nstart.y - ngoal.y) ** 2)
         for j, jend in enumerate(zip(mx, my)):
             dcost = math.sqrt((nstart.x - jend[0]) ** 2 + (nstart.y - jend[1]) ** 2)
             if dcost <= pradius:

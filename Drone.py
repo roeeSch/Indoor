@@ -24,7 +24,7 @@ class Drone:
         self.ang_vel = 0    #[cd/sec]
         self.scanning_range = 200 #[cm]
         self.neighbours_visibility_range = 400 #cm
-        self.dt = 0.2 #[sec]
+        self.dt = 0.1 #[sec]
         self.stop_command = False
         self.neighbors_pos = list()
 

@@ -166,13 +166,13 @@ class Display:
         if drone_idx != 0:
             self.delete_edges(drone_idx)
             edges = []
-            edge = self.ax_grid.plot([drone_pos[0][0], ref_drone_pos[0][0]], [drone_pos[0][1], ref_drone_pos[0][1]])
-            edges.append(edge)
-            self.edg_to_neighbors_plot_handels[drone_idx] = edges
-            # for pos in neighbors_list:
-            #     edge = self.ax_grid.plot([drone_pos[0][0], drone_pos[0][0]+pos[0][0]], [drone_pos[0][1], drone_pos[0][1]+pos[0][1]])
-            #     edges.append(edge)
+            # edge = self.ax_grid.plot([drone_pos[0][0], ref_drone_pos[0][0]], [drone_pos[0][1], ref_drone_pos[0][1]])
+            # edges.append(edge)
             # self.edg_to_neighbors_plot_handels[drone_idx] = edges
+            for pos in neighbors_list:
+                edge = self.ax_grid.plot([drone_pos[0][0], drone_pos[0][0]+pos[0][0]], [drone_pos[0][1], drone_pos[0][1]+pos[0][1]])
+                edges.append(edge)
+            self.edg_to_neighbors_plot_handels[drone_idx] = edges
 
     def delete_edges(self, drone_idx):
         for edge_handel in self.edg_to_neighbors_plot_handels[drone_idx]:

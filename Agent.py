@@ -60,21 +60,21 @@ class Agent:
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
             if self.is_step_legal(self.current_pos, step, matrix):
                 flag = True
-                p1 = self.current_pos + step
-                p2 = ref_drone_pos
-                neighbor_pos = np.subtract(ref_drone_pos, self.current_pos)
-                if not self.is_los(p1, p2, matrix):
-                    flag = False
-                if not self.is_step_in_corridor(step, neighbor_pos, matrix):
-                    flag = False
+                if np.random.rand(1) < 0.8:
+                    for neighbor_pos in NeighborsPosList:
+                        if self.outOfLimit_Ando(neighbor_pos, step):
+                            flag = False
+                            break
+                        if not self.is_step_in_corridor(step, neighbor_pos, matrix):
+                            flag = False
+                            break
+                else:
+                    break
 
-                # for neighbor_pos in NeighborsPosList:
-                #     if self.outOfLimit_Ando(neighbor_pos, step):
-                #         flag = False
-                #         break
-                #     if not self.is_step_in_corridor(step, neighbor_pos, matrix):
-                #         flag = False
-                #         break
+                # p1 = self.current_pos + step
+                # p2 = ref_drone_pos
+                # neighbor_pos = np.subtract(ref_drone_pos, self.current_pos)
+                # if self.is_los(p1, p2, matrix):  # and self.is_step_in_corridor(step, neighbor_pos, matrix):
 
         if break_counter < max_count_val:
             self.next_pos = self.current_pos + step
