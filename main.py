@@ -10,10 +10,11 @@ from Drone import Drone
 import PathBuilder
 from GridPOI import GridPOI
 from Display import Display
+import copy
 
 
 sleep_time = 0.01
-n = 5 # number of agents in the scenario
+num_of_agents = 5
 count_time_step = 0
 time_multiplier = 5
 num_of_iter = 1000
@@ -25,7 +26,7 @@ grid_poi = GridPOI(grid.res, grid.x_lim, grid.y_lim)
 agents = list()
 drones = list()
 drones_pos_list = list()
-for i in range(0, n):
+for i in range(0, num_of_agents):
     drone_pos = [[-10000, -10000]]
     while (env.is_in_obs(drone_pos)) or not(env.is_in_border_polygon(drone_pos)):
         drone_pos = env.enterence + 30 * 2 * ([[0.5, 0.5]] - np.random.rand(1, 2))
@@ -43,13 +44,16 @@ if not movie_flag:
         if np.mod(count_time_step, time_multiplier) == 0:
 
             grid_poi.find_POI(grid.matrix)
-            Astar_Movement = PathBuilder.build_trj(drones, grid_poi.corner_points_list_xy, grid_poi.interesting_points_list_xy,
-                                                   grid.x_lim, grid.y_lim, grid.matrix, grid.res)
-            if Astar_Movement:
-                for i in range(0, n):
-                    agents[i].astar_path = Astar_Movement[i]
+            corner_points_list_xy = copy.deepcopy(grid_poi.corner_points_list_xy)
+            interesting_points_list_xy = copy.deepcopy(grid_poi.interesting_points_list_xy)
 
-        for i in range(0, n):
+            for i in range(0, num_of_agents):
+                Astar_Movement, corner_points_list_xy, interesting_points_list_xy = \
+                    PathBuilder.build_trj(drones[i].pos, drones[i].scanning_range, grid.x_lim,
+                                          grid.y_lim, grid.res, grid.matrix, corner_points_list_xy, interesting_points_list_xy, drones[drones[i].RefID].pos)
+                agents[i].astar_path = Astar_Movement[0]
+
+        for i in range(0, num_of_agents):
 
             tof_list = drones[i].tof_sensing()
             grid.update_from_tof_sensing_list(tof_list)
@@ -59,7 +63,7 @@ if not movie_flag:
             display.plot_step(agents[i].next_pos, grid.empty_idxs, grid.wall_idxs, agents[i].reduced_neigbours_pos_list,
                               drones[i].pos, i, grid_poi.interesting_points_list_ij, grid_poi.corner_points_list_ij, grid_poi.wall_idxs_ij)
 
-        # for i in range(0, n):
+        # for i in range(0, num_of_agents):
         #     drones[i].stop_command = False
 
         display.fig.canvas.draw()
@@ -70,6 +74,6 @@ else: # Creating a movie
     metadata = dict(title='Movie Test', artist='Matplotlib',
                     comment='Movie support!')
     writer = FFMpegWriter(fps=10, metadata=metadata)
-    with writer.saving(env.fig, "writer_test.mp4", 100):
+    with writer.saving(display.fig, "writer_test.mp4", 100):
 
             writer.grab_frame()

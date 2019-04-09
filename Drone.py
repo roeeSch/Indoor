@@ -5,10 +5,14 @@ import numpy as np
 class Drone:
     def __init__(self, AgentID, pos, heading_ang, env):
         self.ID = AgentID
+        if AgentID == 0:
+            self.RefID = AgentID
+        else:
+            self.RefID = AgentID - 1
         self.env = env
         self.is_alive = True
-        self.acc_factor = 10
-        self.ang_vel_fac = 10
+        self.acc_factor = 5#10
+        self.ang_vel_fac = 5#10
         self.acc_lim = 100 #[cm^2/sec]
         self.vel_lim = 100 #[cd/sec]
         self.ang_vel_lim = np.pi #[rad/sec]
@@ -22,7 +26,7 @@ class Drone:
         self.ang_vel = 0    #[cd/sec]
         self.scanning_range = 200 #[cm]
         self.neighbours_visibility_range = 400 #cm
-        self.dt = 0.1 #[sec]
+        self.dt = 0.2#0.1 #[sec]
         self.stop_command = False
         self.neighbors_pos = list()
 
