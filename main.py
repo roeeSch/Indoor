@@ -42,7 +42,7 @@ if not movie_flag:
     for t in range(1, num_of_iter):
         count_time_step += 1
         if np.mod(count_time_step, time_multiplier) == 0:
-
+        # if sum(x.path_completed for x in agents) == num_of_agents:
             grid_poi.find_POI(grid.matrix)
             corner_points_list_xy = copy.deepcopy(grid_poi.corner_points_list_xy)
             interesting_points_list_xy = copy.deepcopy(grid_poi.interesting_points_list_xy)
@@ -52,6 +52,7 @@ if not movie_flag:
                     PathBuilder.build_trj(drones[i].pos, drones[i].scanning_range, grid.x_lim,
                                           grid.y_lim, grid.res, grid.matrix, corner_points_list_xy, interesting_points_list_xy, drones[drones[i].RefID].pos)
                 agents[i].astar_path = Astar_Movement[0]
+                # agents[i].path_completed = 0
 
         for i in range(0, num_of_agents):
 

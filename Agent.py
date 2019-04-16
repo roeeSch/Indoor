@@ -26,6 +26,9 @@ class Agent:
         self.x_lim = x_lim
         self.y_lim = y_lim
         self.res = res
+        self.attempts_cnt = 0
+        self.max_attemps = 3
+        # self.path_completed = 0
 
 
     def update_current_state(self, current_pos, current_heading):
@@ -46,15 +49,20 @@ class Agent:
 
     def Dynam_Search_in_maze(self, NeighborsPosList, matrix):
 
-        max_count_val = 15
+        max_count_val = 10
         break_counter = 0
         vec = np.zeros(2)
         flag = False
 
-        try:
-            vec = [self.astar_path[0][0]-self.current_pos[0][0],self.astar_path[0][1]-self.current_pos[0][1]]
-        except:
+        if np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > 1.5*self.step_noise_size and self.attempts_cnt <= self.max_attemps:
+            self.attempts_cnt += 1
             vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
+        else:
+            try:
+                vec = [self.astar_path[0][0]-self.current_pos[0][0],self.astar_path[0][1]-self.current_pos[0][1]]
+            except:
+                vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
+
         while not flag and break_counter < max_count_val:
             break_counter = break_counter + 1
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
@@ -73,10 +81,13 @@ class Agent:
 
         if break_counter < max_count_val:
             self.next_pos = self.current_pos + step
+            self.attempts_cnt = 0
             try:
                 del self.astar_path[0]
             except:
                 pass
+            # if self.astar_path == []:
+            #     self.path_completed = 1
 
 
 # This is the important function, that should be rewriten
