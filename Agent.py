@@ -27,6 +27,8 @@ class Agent:
         self.y_lim = y_lim
         self.res = res
         self.dist_factor = 3
+        self.heading_radius = 70/self.res
+        self.min_tail_uncovered = 30 # should be tested
 
 
     def update_current_state(self, current_pos, current_heading):
@@ -38,11 +40,31 @@ class Agent:
         return self.next_pos, self.next_heading
 
 
+    def add_heading(self, matrix):
+        xc, yc = self.xy_to_ij(self.current_pos[0][0], self.current_pos[0][1])
+        r = self.heading_radius
+        zero_sum = 0
+        x_low = max(self.x_lim[0], int(xc - r))
+        x_high = min(self.x_lim[1], int(xc + r + 1))
+        for xi in range(x_low, x_high):
+            y = (r**2 - (xi - xc)**2)**0.5 + yc
+            y_low = max(self.y_lim[0], int(yc - y))
+            y_high = min(self.y_lim[1], int(yc + y + 1))
+            for yi in range(y_low, y_high):
+                if matrix[xi][yi] == 0:
+                    zero_sum += 1
+        return zero_sum > self.min_tail_uncovered
+
+
     def preform_step_sys_sim(self, current_pos, current_heading, neigbours_pos_list, matrix):
         self.update_current_state(current_pos, current_heading)
         self.reduced_neigbours_pos_list = self.neighborhood_reduction(neigbours_pos_list, matrix)
         self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
         self.next_heading = np.random.rand() * np.pi / 4
+        # if self.add_heading(matrix):
+        #     self.next_heading = np.mod(self.current_heading + (np.pi / 2), 2 * np.pi)
+        # else:
+        #     self.next_heading = self.current_heading
 
 
     def Dynam_Search_in_maze(self, NeighborsPosList, matrix):

@@ -214,6 +214,36 @@ class Astar:
         return i, j
 
 
+def is_los(p1, p2, matrix, x_lim, y_lim, res):
+    n = int(np.maximum(1, np.ceil(np.linalg.norm(p1-p2)/res)*3))
+    x = np.linspace(p1[0][0], p2[0][0], num=n, endpoint=True)
+    y = np.linspace(p1[0][1], p2[0][1], num=n, endpoint=True)
+    for ind in range(1, n):
+        i, j = xy_to_ij(x[ind], y[ind], x_lim, y_lim, res)
+        if matrix[i][j] != 1:
+            return False
+    return True
+
+
+def xy_to_ij(x, y, x_lim, y_lim, res):
+    i = int(np.floor((x - x_lim[0])/res))
+    j = int(np.floor((y - y_lim[0]) / res))
+    return i, j
+
+
+def get_goal_point(pos, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res):
+    g_idx = 0
+    dist_arr = []
+    for idx, elem in enumerate(temp_interesting_points_list_xy):
+        dist_arr.append(np.linalg.norm(np.subtract(elem, pos[0])))
+    sorted_dist_idxs = sorted(range(len(dist_arr)), key=lambda k: dist_arr[k])
+    for idx in sorted_dist_idxs:
+        if is_los(pos, [[temp_interesting_points_list_xy[idx][0], temp_interesting_points_list_xy[idx][1]]], matrix, x_lim, y_lim, res):
+            g_idx = idx
+            break
+    return g_idx
+
+
 def build_trj(pos, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points_list_xy, temp_interesting_points_list_xy, ref_pos):
 
 
@@ -222,20 +252,24 @@ def build_trj(pos, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points
 
     if len(temp_interesting_points_list_xy) > 0:
 
-        for idx, elem in enumerate(temp_interesting_points_list_xy):
+        # for idx, elem in enumerate(temp_interesting_points_list_xy):
+        #
+        #     if np.random.rand(1) < 0.1:
+        #         g_idx = np.random.randint(len(temp_interesting_points_list_xy))
+        #     else:
+        #         g_idx = 0
+        #     gx = temp_interesting_points_list_xy[g_idx][0]
+        #     gy = temp_interesting_points_list_xy[g_idx][1]
+        #
+        #     # g_idx = idx
+        #     # gx = elem[0]
+        #     # gy = elem[1]
+        #     # if (np.linalg.norm(ref_pos[0] - [gx, gy]) < scanning_range):
+        #     #     break
 
-            if np.random.rand(1) < 0.1:
-                g_idx = np.random.randint(len(temp_interesting_points_list_xy))
-            else:
-                g_idx = 0
-            gx = temp_interesting_points_list_xy[g_idx][0]
-            gy = temp_interesting_points_list_xy[g_idx][1]
-
-            # g_idx = idx
-            # gx = elem[0]
-            # gy = elem[1]
-            # if (np.linalg.norm(ref_pos[0] - [gx, gy]) < scanning_range):
-            #     break
+        g_idx = get_goal_point(pos, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res)
+        gx = temp_interesting_points_list_xy[g_idx][0]
+        gy = temp_interesting_points_list_xy[g_idx][1]
 
         del temp_interesting_points_list_xy[g_idx]
 
