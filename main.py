@@ -14,9 +14,9 @@ import copy
 
 
 sleep_time = 0.01
-num_of_agents = 5
+num_of_agents = 4
 count_time_step = 0
-time_multiplier = 5
+time_multiplier = 3
 num_of_iter = 1000
 
 env = Env(10, 2)
@@ -49,8 +49,9 @@ if not movie_flag:
 
             for i in range(0, num_of_agents):
                 Astar_Movement, corner_points_list_xy, interesting_points_list_xy = \
-                    PathBuilder.build_trj(drones[i].pos, drones[i].scanning_range, grid.x_lim,
-                                          grid.y_lim, grid.res, grid.matrix, corner_points_list_xy, interesting_points_list_xy, drones[drones[i].RefID].pos)
+                    PathBuilder.build_trj(drones[i].pos, drones[i].ID, drones[i].scanning_range, grid.x_lim,
+                                          grid.y_lim, grid.res, grid.matrix, corner_points_list_xy,
+                                          interesting_points_list_xy, drones[drones[i].RefID].pos, agents)
                 agents[i].astar_path = Astar_Movement[0]
                 # agents[i].path_completed = 0
 

@@ -9,7 +9,7 @@ class Agent:
         self.velocityFactor = 50
         self.step_noise_size = 20
         self.step_snr = 1
-        self.stepSizeLimit = 30
+        self.stepSizeLimit = 50
         self.step_factor = 1
         self.next_pos = pos
         self.current_pos = self.next_pos
@@ -59,7 +59,7 @@ class Agent:
     def preform_step_sys_sim(self, current_pos, current_heading, neigbours_pos_list, matrix):
         self.update_current_state(current_pos, current_heading)
         self.reduced_neigbours_pos_list = self.neighborhood_reduction(neigbours_pos_list, matrix)
-        self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
+        self.Dynam_Search_in_maze(matrix)
         self.next_heading = np.random.rand() * np.pi / 4
         # if self.add_heading(matrix):
         #     self.next_heading = np.mod(self.current_heading + (np.pi / 2), 2 * np.pi)
@@ -67,43 +67,59 @@ class Agent:
         #     self.next_heading = self.current_heading
 
 
-    def Dynam_Search_in_maze(self, NeighborsPosList, matrix):
+    def Dynam_Search_in_maze(self, matrix):
 
         max_count_val = 10
         break_counter = 0
         vec = np.zeros(2)
         flag = False
+        tails_from_wall = 1
         as_flag = False
+        noise_fac = 1
+        close_wall = False
 
-        if self.astar_path == []:
-            vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
-        else:
-            vec = [self.astar_path[0][0] - self.current_pos[0][0], self.astar_path[0][1] - self.current_pos[0][1]]
+        if self.astar_path != [] and self.is_step_legal(self.current_pos,  np.subtract(self.astar_path[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.astar_path[0], self.current_pos[0])
             as_flag = True
+        elif self.astar_path != [] and np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.dist_factor * self.step_noise_size\
+                and self.is_step_legal(self.current_pos,  np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.next_pos[0], self.current_pos[0])
+        elif self.is_step_legal(self.current_pos,  np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.next_pos[0], self.current_pos[0])
 
-        if self.astar_path != [] and np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.dist_factor * self.step_noise_size\
-                and self.is_step_legal(self.current_pos, [self.next_pos[0][0]-self.current_pos[0][0],self.next_pos[0][1]-self.current_pos[0][1]], matrix):
-            vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
-
-        while not flag and break_counter < max_count_val:
-            break_counter = break_counter + 1
-            step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
-            if self.is_step_legal(self.current_pos, step, matrix):
-                flag = True
-                if np.random.rand(1) < 0:#0.8
-                    for neighbor_pos in NeighborsPosList:
-                        if self.outOfLimit_Ando(neighbor_pos, step):
-                            flag = False
-                            break
-                        if not self.is_step_in_corridor(step, neighbor_pos, matrix):
-                            flag = False
-                            break
-                    else:
+        if sum(vec) != 0:
+            ivec, jvec = self.xy_to_ij(vec[0], vec[1])
+            for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
+                for tj in range(jvec - tails_from_wall, jvec - tails_from_wall + 1):
+                    if matrix[ti][tj] == 2:
+                        close_wall = True
                         break
+        else:
+            close_wall = True
+
+
+        if close_wall:
+            if np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.res:
+                step = np.multiply(np.divide(vec, np.linalg.norm(vec)), np.linalg.norm(vec) - (tails_from_wall * self.res))
+                if (np.linalg.norm(vec) - (tails_from_wall * self.res)) > 0:
+                    vec = step
+
+        while break_counter < max_count_val and as_flag == False and sum(vec) != 0:
+            break_counter = break_counter + 1
+            step = self.step_noise_size * noise_fac * ([0.5, 0.5] - np.random.rand(2)) + self.current_pos[0]
+            istep, jstep = self.xy_to_ij(step[0], step[1])
+            if self.is_step_legal(self.current_pos, step, matrix) and matrix[istep + tails_from_wall][jstep] != 2 and\
+                    matrix[istep - tails_from_wall][jstep] != 2 and matrix[istep][jstep + tails_from_wall] != 2 and\
+                    matrix[istep][jstep - tails_from_wall] != 2:
+                vec = step
+                break
+
+        if np.linalg.norm(vec) > self.stepSizeLimit:
+            temp = np.divide(vec, np.linalg.norm(vec))
+            vec = np.multiply(temp, self.stepSizeLimit)
 
         if break_counter < max_count_val:
-            self.next_pos = self.current_pos + step
-            self.attempts_cnt = 0
+            self.next_pos = self.current_pos + vec
             if as_flag and self.astar_path != []:
                 del self.astar_path[0]
 

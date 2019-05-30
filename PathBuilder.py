@@ -231,20 +231,79 @@ def xy_to_ij(x, y, x_lim, y_lim, res):
     return i, j
 
 
-def get_goal_point(pos, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res):
-    g_idx = 0
+# def get_goal_point(pos, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res, agents):
+#     g_idx = 0
+#     dist_arr = []
+#     for idx, elem in enumerate(temp_interesting_points_list_xy):
+#         dist_arr.append(np.linalg.norm(np.subtract(elem, pos[0])))
+#     sorted_dist_idxs = sorted(range(len(dist_arr)), key=lambda k: dist_arr[k])
+#     for idx in sorted_dist_idxs:
+#         if is_los(pos, [[temp_interesting_points_list_xy[idx][0], temp_interesting_points_list_xy[idx][1]]], matrix, x_lim, y_lim, res):
+#             g_idx = idx
+#             break
+#     return g_idx
+
+def get_goal_point(pos, id, interesting_points_list_xy, matrix, x_lim, y_lim, res, agents):
+    # This function chooses specific interest point for each drone
+
     dist_arr = []
-    for idx, elem in enumerate(temp_interesting_points_list_xy):
+    dist_from_prev_pos = 0
+    n_tails_between_drones = 15
+
+    for ielem, elem in enumerate(interesting_points_list_xy):
         dist_arr.append(np.linalg.norm(np.subtract(elem, pos[0])))
     sorted_dist_idxs = sorted(range(len(dist_arr)), key=lambda k: dist_arr[k])
-    for idx in sorted_dist_idxs:
-        if is_los(pos, [[temp_interesting_points_list_xy[idx][0], temp_interesting_points_list_xy[idx][1]]], matrix, x_lim, y_lim, res):
-            g_idx = idx
-            break
+
+    valid_wp_flag = False
+    g_idx = np.random.randint(len(interesting_points_list_xy))
+    if len(agents) > 1: # For multiple drones
+        i_s, j_s = xy_to_ij(pos[0][0], pos[0][1], x_lim, y_lim, res)
+        for idx in sorted_dist_idxs:
+            i_g, j_g = xy_to_ij(interesting_points_list_xy[idx][0], interesting_points_list_xy[idx][1], x_lim, y_lim, res)
+            if np.linalg.norm(np.subtract([i_s, j_s],[i_g, j_g])) > dist_from_prev_pos:
+                for i_agent in range(len(agents)):
+                    if agents[i_agent].ID != id:
+                        add_drone_pos = agents[i_agent].current_pos
+                        i_p_s, j_p_s = xy_to_ij(add_drone_pos[0][0], add_drone_pos[0][1], x_lim, y_lim, res)
+                        if np.linalg.norm(np.subtract([i_g, j_g], [i_p_s, j_p_s])) > n_tails_between_drones:
+                            if is_los(pos,[[interesting_points_list_xy[idx][0], interesting_points_list_xy[idx][1]]],
+                                      matrix, x_lim, y_lim, res):
+                                g_idx = idx
+                                valid_wp_flag = True
+                                break
+                if valid_wp_flag == True:
+                    break
+
+        if valid_wp_flag == False:
+
+            for idx in sorted_dist_idxs:
+                i_g, j_g = xy_to_ij(interesting_points_list_xy[idx][0], interesting_points_list_xy[idx][1], x_lim, y_lim,
+                                    res)
+                if np.linalg.norm(np.subtract([i_s, j_s], [i_g, j_g])) > dist_from_prev_pos:
+                    for i_agent in range(len(agents)):
+                        if agents[i_agent].ID != id:
+                            add_drone_pos = agents[i_agent].current_pos
+                            i_p_s, j_p_s = xy_to_ij(add_drone_pos[0][0], add_drone_pos[0][1], x_lim, y_lim, res)
+                            add_drone_next_pos = agents[i_agent].next_pos
+                            i_p_g, j_p_g = xy_to_ij(add_drone_next_pos[0][0], add_drone_next_pos[0][1], x_lim, y_lim, res)
+                            if np.linalg.norm(np.subtract([i_g, j_g], [i_p_s, j_p_s])) > n_tails_between_drones and \
+                                    np.linalg.norm(np.subtract([i_g, j_g], [i_p_g, j_p_g])) > n_tails_between_drones:
+                                g_idx = idx
+                                valid_wp_flag = True
+                                break
+                    if valid_wp_flag == True:
+                        break
+    else: # For one drone
+        g_idx = 0
+        for idx in sorted_dist_idxs:
+            if is_los(pos,[[interesting_points_list_xy[idx][0], interesting_points_list_xy[idx][1]]],
+                    matrix, x_lim, y_lim, res):
+                g_idx = idx
+                break
     return g_idx
 
 
-def build_trj(pos, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points_list_xy, temp_interesting_points_list_xy, ref_pos):
+def build_trj(pos, id, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points_list_xy, temp_interesting_points_list_xy, ref_pos, agents):
 
 
     Astar_Movement = []
@@ -252,22 +311,7 @@ def build_trj(pos, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points
 
     if len(temp_interesting_points_list_xy) > 0:
 
-        # for idx, elem in enumerate(temp_interesting_points_list_xy):
-        #
-        #     if np.random.rand(1) < 0.1:
-        #         g_idx = np.random.randint(len(temp_interesting_points_list_xy))
-        #     else:
-        #         g_idx = 0
-        #     gx = temp_interesting_points_list_xy[g_idx][0]
-        #     gy = temp_interesting_points_list_xy[g_idx][1]
-        #
-        #     # g_idx = idx
-        #     # gx = elem[0]
-        #     # gy = elem[1]
-        #     # if (np.linalg.norm(ref_pos[0] - [gx, gy]) < scanning_range):
-        #     #     break
-
-        g_idx = get_goal_point(pos, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res)
+        g_idx = get_goal_point(pos, id, temp_interesting_points_list_xy, matrix, x_lim, y_lim, res, agents)
         gx = temp_interesting_points_list_xy[g_idx][0]
         gy = temp_interesting_points_list_xy[g_idx][1]
 
@@ -275,12 +319,12 @@ def build_trj(pos, scanning_range, x_lim, y_lim, res, matrix, temp_corner_points
 
         astar_movement, corner_idxs = astar.PlanningAlg(pos[0][0], pos[0][1], gx, gy, temp_corner_points_list_xy)
 
-        # if len(corner_idxs) >= 3:
-        #     for ci in corner_idxs:
-        #         if ci != -1:
-        #             temp_corner_points_list_xy[ci] = []
-        #
-        #     temp_corner_points_list_xy = filter(None, temp_corner_points_list_xy)
+        if len(corner_idxs) >= 3:
+            for ci in corner_idxs:
+                if ci != -1:
+                    temp_corner_points_list_xy[ci] = []
+
+            temp_corner_points_list_xy = filter(None, temp_corner_points_list_xy)
 
         Astar_Movement.append(astar_movement[1:])
     else:
