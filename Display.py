@@ -63,17 +63,17 @@ class Display:
         self.fig.canvas.draw()
 
 
-    def plot_step(self, virtual_target_pos, empty_idxs, wall_idxs, neighbors_list, drone_pos, drone_idx, interesting_points_list_ij, corner_points_list_ij, wall_corner_idx):
+    def plot_step(self, virtual_target_pos, empty_idxs, wall_idxs, drone_pos, drone_idx):
         for tail in empty_idxs:
             self.change_tail_to_empty(tail[0],tail[1])
         for tail in wall_idxs:
             self.change_tail_to_wall(tail[0],tail[1])
-        for tail in wall_corner_idx:
-            self.change_tail_to_wall(tail[0], tail[1])
-        self.plot_interesting_points(interesting_points_list_ij)
-        self.plot_corner_points(corner_points_list_ij)
+        # for tail in wall_corner_idx:
+        #     self.change_tail_to_wall(tail[0], tail[1])
+        # self.plot_interesting_points(interesting_points_list_ij)
+        # self.plot_corner_points(corner_points_list_ij)
         self.update_drone_plot(drone_pos, virtual_target_pos, drone_idx)
-        self.plot_edges(neighbors_list, drone_pos, drone_idx)
+        # self.plot_edges(neighbors_list, drone_pos, drone_idx)
 
 
     def plot_interesting_points(self, interesting_points_list_ij):
