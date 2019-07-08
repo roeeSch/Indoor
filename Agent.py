@@ -70,22 +70,22 @@ class Agent:
         elif self.is_step_legal(self.current_pos, np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
             vec = np.subtract(self.next_pos[0], self.current_pos[0])
 
-        # # Check if the choosen step will be to close to a wall
-        # if sum(vec) != 0:
-        #     ivec, jvec = self.xy_to_ij(vec[0], vec[1])
-        #     for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
-        #         for tj in range(jvec - tails_from_wall, jvec - tails_from_wall + 1):
-        #             if matrix[ti][tj] == 2:
-        #                 close_wall = True
-        #                 break
-        #
-        # # If indeed it is to close to a wall then move in the same direction but stop a few tail before the wall
-        # if close_wall:
-        #     if np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.res:
-        #         step = np.multiply(np.divide(vec, np.linalg.norm(vec)),
-        #                            np.linalg.norm(vec) - (tails_from_wall * self.res))
-        #         if (np.linalg.norm(vec) - (tails_from_wall * self.res)) > 0:
-        #             vec = step
+        # Check if the choosen step will be to close to a wall
+        if sum(vec) != 0:
+            ivec, jvec = self.xy_to_ij(vec[0], vec[1])
+            for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
+                for tj in range(jvec - tails_from_wall, jvec - tails_from_wall + 1):
+                    if matrix[ti][tj] == 2:
+                        close_wall = True
+                        break
+
+        # If indeed it is to close to a wall then move in the same direction but stop a few tail before the wall
+        if close_wall:
+            if np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.res:
+                step = np.multiply(np.divide(vec, np.linalg.norm(vec)),
+                                   np.linalg.norm(vec) - (tails_from_wall * self.res))
+                if (np.linalg.norm(vec) - (tails_from_wall * self.res)) > 0:
+                    vec = step
 
         # Limit the step size to maximum distance
         if np.linalg.norm(vec) > self.stepSizeLimit:

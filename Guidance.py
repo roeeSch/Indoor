@@ -2,11 +2,11 @@
 import math
 import numpy as np
 
-class LocalPlanner:
+class Guidance:
     def __init__(self, Grid):
         self.Grid = Grid
 
-    def LocalPathFinder(self, current_pos, current_heading, dict_of_drones_pos, agents, agent_idx):
+    def LocalGuidance(self, current_pos, current_heading, dict_of_drones_pos, agents, agent_idx):
         next_heading = self.RotationAngleManager()
         agents[agent_idx].preform_step_sys_sim(current_pos, current_heading, self.Grid, next_heading)
         dict_of_drones_pos[agent_idx].pos = agents[agent_idx].current_pos[0]
