@@ -71,7 +71,10 @@ class Drone:
 
     def tof_sensing(self):
         output_list = list()
-        directions_vec = np.add([0, np.pi/2, np.pi, 3*np.pi/2], self.current_heading)
+        # directions_vec = np.add([0, np.pi/2, np.pi, 3*np.pi/2], self.current_heading)
+        directions_vec = np.add([0, np.pi/8, np.pi/4, 3*np.pi/8, np.pi/2, 5*np.pi/8, 3*np.pi/4, 7*np.pi/8, np.pi,
+                                 9*np.pi/8, 5*np.pi/4, 11*np.pi/8, 3*np.pi/2, 13*np.pi/8, 7*np.pi/4, 15*np.pi/8],
+                                self.current_heading)
         for phi in directions_vec:
             flag, sense_pos = self.env.TOF_sensing(self.pos, phi)
             output_list.append([flag, self.pos, sense_pos])
@@ -92,7 +95,7 @@ class Drone:
         self.update_position()
         self.update_velocity()
         self.update_ang()
-        self.neighbors_pos = self.neighbors_sensing(drone_arr)
+        # self.neighbors_pos = self.neighbors_sensing(drone_arr)
 
     def prevent_collision(self, drones):
         for i in range(len(drones)):

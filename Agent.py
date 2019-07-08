@@ -26,6 +26,7 @@ class Agent:
         self.x_lim = x_lim
         self.y_lim = y_lim
         self.res = res
+        self.dist_factor = 1
 
 
     def update_current_state(self, current_pos, current_heading):
@@ -37,46 +38,70 @@ class Agent:
         return self.next_pos, self.next_heading
 
 
-    def preform_step_sys_sim(self, current_pos, current_heading, neigbours_pos_list, matrix):
+    def preform_step_sys_sim(self, current_pos, current_heading, matrix, next_heading):
         self.update_current_state(current_pos, current_heading)
-        self.reduced_neigbours_pos_list = self.neighborhood_reduction(neigbours_pos_list, matrix)
-        self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
-        self.next_heading = np.random.rand() * np.pi / 4
+        # self.reduced_neigbours_pos_list = self.neighborhood_reduction(neigbours_pos_list, matrix)
+        # self.Dynam_Search_in_maze(self.reduced_neigbours_pos_list, matrix)
+        self.Dynam_Search_in_maze(matrix)
+        self.next_heading = next_heading
 
 
-    def Dynam_Search_in_maze(self, NeighborsPosList, matrix):
+    def Dynam_Search_in_maze(self, matrix):
 
         max_count_val = 15
         break_counter = 0
         vec = np.zeros(2)
         flag = False
+        tails_from_wall = 1
+        as_flag = False
+        close_wall = False
 
-        try:
-            vec = [self.astar_path[0][0]-self.current_pos[0][0],self.astar_path[0][1]-self.current_pos[0][1]]
-        except:
-            vec = [self.next_pos[0][0] - self.current_pos[0][0], self.next_pos[0][1] - self.current_pos[0][1]]
-        while not flag and break_counter < max_count_val:
+        # If there are steps left in the path and the next step is in line of sight then choose it.
+        if self.astar_path != [] and self.is_step_legal(self.current_pos,
+                                                        np.subtract(self.astar_path[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.astar_path[0], self.current_pos[0])
+            as_flag = True
+        # If there are steps left in the path and the previous step is not finished and still legal then resume the prevoius step
+        elif self.astar_path != [] and np.linalg.norm(
+                np.subtract(self.current_pos[0], self.next_pos[0])) > self.dist_factor * self.step_noise_size \
+                and self.is_step_legal(self.current_pos, np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.next_pos[0], self.current_pos[0])
+        # If there are no steps in path and the previous step is still legal then resume the previous step
+        elif self.is_step_legal(self.current_pos, np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
+            vec = np.subtract(self.next_pos[0], self.current_pos[0])
+
+        # # Check if the choosen step will be to close to a wall
+        # if sum(vec) != 0:
+        #     ivec, jvec = self.xy_to_ij(vec[0], vec[1])
+        #     for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
+        #         for tj in range(jvec - tails_from_wall, jvec - tails_from_wall + 1):
+        #             if matrix[ti][tj] == 2:
+        #                 close_wall = True
+        #                 break
+        #
+        # # If indeed it is to close to a wall then move in the same direction but stop a few tail before the wall
+        # if close_wall:
+        #     if np.linalg.norm(np.subtract(self.current_pos[0], self.next_pos[0])) > self.res:
+        #         step = np.multiply(np.divide(vec, np.linalg.norm(vec)),
+        #                            np.linalg.norm(vec) - (tails_from_wall * self.res))
+        #         if (np.linalg.norm(vec) - (tails_from_wall * self.res)) > 0:
+        #             vec = step
+
+        # Limit the step size to maximum distance
+        if np.linalg.norm(vec) > self.stepSizeLimit:
+            temp = np.divide(vec, np.linalg.norm(vec))
+            vec = np.multiply(temp, self.stepSizeLimit)
+
+        while break_counter < max_count_val:
             break_counter = break_counter + 1
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
             if self.is_step_legal(self.current_pos, step, matrix):
-                flag = True
-                if np.random.rand(1) < 0.8:
-                    for neighbor_pos in NeighborsPosList:
-                        if self.outOfLimit_Ando(neighbor_pos, step):
-                            flag = False
-                            break
-                        if not self.is_step_in_corridor(step, neighbor_pos, matrix):
-                            flag = False
-                            break
-                    else:
-                        break
+                break
 
         if break_counter < max_count_val:
             self.next_pos = self.current_pos + step
-            try:
+            if as_flag and self.astar_path != []:
                 del self.astar_path[0]
-            except:
-                pass
 
 
 # This is the important function, that should be rewriten
