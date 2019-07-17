@@ -16,7 +16,7 @@ class Grid:
                 self.y_lim[1] = border_polygon[i][1]
 
         self.res = res
-        self.matrix = np.zeros([np.int64(np.ceil((self.x_lim[1]-self.x_lim[0])/self.res)), np.int64(np.ceil((self.y_lim[1]-self.y_lim[0])/self.res))])
+        self.matrix = -1*np.ones([np.int64(np.ceil((self.x_lim[1]-self.x_lim[0])/self.res)), np.int64(np.ceil((self.y_lim[1]-self.y_lim[0])/self.res))])
         self.empty_idxs = []
         self.wall_idxs = []
 
@@ -33,11 +33,11 @@ class Grid:
 
     def change_tail_to_empty(self, i, j):
         # self.change_tail_color_ij(i, j, 'k')
-        self.matrix[i][j] = 1
+        self.matrix[i][j] = 0
 
     def change_tail_to_wall(self, i, j):
         # self.change_tail_color_ij(i, j, 'w')
-        self.matrix[i][j] = 2
+        self.matrix[i][j] = 1
 
     def update_from_tof_sensing_list(self, tof_sensing_list):
         self.empty_idxs = []
@@ -53,7 +53,7 @@ class Grid:
             i, j = self.xy_to_ij(xs[ind], ys[ind])
             if 0 > i or i >= self.matrix.shape[0] or 0 > j or j >= self.matrix.shape[1]:
                 return
-            if self.matrix[i][j] == 0:
+            if self.matrix[i][j] == -1:
                 self.change_tail_to_empty(i, j)
                 self.empty_idxs.append([i,j])
         if is_tof_senses:

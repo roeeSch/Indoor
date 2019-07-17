@@ -174,7 +174,7 @@ class Astar:
             node_valid = True
             temp_m_node_xy = [x_rand_vec[k], y_rand_vec[k]]
             temp_i, temp_j = self.xy_to_ij(x_rand_vec[k], y_rand_vec[k])
-            if self.matrix[temp_i][temp_j] == 1:
+            if self.matrix[temp_i][temp_j] == 0:
                 for dp_idx in range(len(drones_pos)):
                     if (np.linalg.norm(np.subtract(drones_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones
                         and np.linalg.norm(np.subtract(drones_next_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones):
@@ -248,7 +248,7 @@ def build_trj(pos, env_limits, res, matrix, goal, tf_prefix, dict_of_drones_pos)
     gx = goal[0]
     gy = goal[1]
 
-    astar_movement = astar.PlanningAlg(pos[0][0], pos[0][1], gx, gy)
+    astar_movement = astar.PlanningAlg(pos[0], pos[1], gx, gy)
     # Astar_Movement = astar_movement[1:-1]
     Astar_Movement = astar_movement[1:] # esrase this
 

@@ -75,7 +75,7 @@ class Agent:
             ivec, jvec = self.xy_to_ij(vec[0], vec[1])
             for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
                 for tj in range(jvec - tails_from_wall, jvec - tails_from_wall + 1):
-                    if matrix[ti][tj] == 2:
+                    if matrix[ti][tj] == 1:
                         close_wall = True
                         break
 
@@ -229,7 +229,7 @@ class Agent:
     def is_step_legal(self, curr_pos, step, matrix):
         new_pos = curr_pos + step
         i, j = self.xy_to_ij(new_pos[0][0], new_pos[0][1])
-        if not (0 <= i and i < matrix.shape[0] and 0 <= j and j < matrix.shape[1] and (matrix[i][j] == 1 or matrix[i][j] == 3)):
+        if not (0 <= i and i < matrix.shape[0] and 0 <= j and j < matrix.shape[1] and matrix[i][j] == 0):
             return False
         return self.is_los(curr_pos, new_pos, matrix)
 
@@ -250,6 +250,6 @@ class Agent:
         y = np.linspace(p1[0][1], p2[0][1], num=n, endpoint=True)
         for ind in range(1, n):
             i, j = self.xy_to_ij(x[ind], y[ind])
-            if matrix[i][j] != 1 and matrix[i][j] != 3:
+            if matrix[i][j] != 0:
                 return False
         return True

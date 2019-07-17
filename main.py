@@ -12,8 +12,9 @@ from GridPOI import GridPOI
 from Display import Display
 import copy
 import Astar
-import CentralpathPlanner
-import Guidance
+from CentralpathPlanner import CentralpathPlanner
+from Guidance import Guidance
+from LocalMissionPlanner import LocalMissionPlanner
 
 class DronePosGoal:
     """A simple class for holding drone position."""
@@ -36,10 +37,12 @@ resolution = 10
 env = Env(resolution, 2)
 dict_of_drones_pos = dict()
 grid = Grid(env.border_polygon_for_grid, resolution)
-grid_poi = GridPOI(grid.res, grid.x_lim, grid.y_lim)
+env_limits = grid.x_lim + grid.y_lim
 
 agents = list()
 drones = list()
+localmissionplanner = list()
+guidance = list()
 drones_pos_list = list()
 for i in range(0, num_of_agents):
     drone_pos = [[-10000, -10000]]
@@ -47,41 +50,32 @@ for i in range(0, num_of_agents):
         drone_pos = env.enterence + 30 * 2 * ([[0.5, 0.5]] - np.random.rand(1, 2))
 
     drones.append(Drone(i, drone_pos, 0, env))
+    localmissionplanner.append(LocalMissionPlanner(env_limits, i, grid.res, drone_pos))
     agents.append(Agent(i, drone_pos, grid.res, grid.x_lim, grid.y_lim))
     drones_pos_list.append(list(drone_pos[0]))
+    guidance.append(Guidance(i))
 
 display = Display(env.border_polygon, env.obs_array, grid.x_lim, grid.y_lim, grid.res, grid.matrix, drones_pos_list)
+centralpathplanner = CentralpathPlanner(num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res)
 
 for i in range(0, num_of_agents):
-    dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos[0], next_pos=drones[i].pos[0], goal=[], yaw=0)
+    dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos[0], next_pos=drones[i].pos[0], goal=drones[i].pos[0], yaw=0)
 
 movie_flag = False
 if not movie_flag:
     for t in range(1, num_of_iter):
         count_time_step += 1
         if np.mod(count_time_step, time_multiplier) == 0:
-
-            centralpathplanner = CentralpathPlanner.CentralpathPlanner(grid.matrix, num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res)
-            dict_of_drones_pos = centralpathplanner.BuildPath(dict_of_drones_pos)
+            dict_of_drones_pos = centralpathplanner.BuildPath(dict_of_drones_pos, grid.matrix)
 
         for i in range(0, num_of_agents):
 
             tof_list = drones[i].tof_sensing()
             grid.update_from_tof_sensing_list(tof_list)
             drones[i].preform_step(drones)
-
-            if dict_of_drones_pos[i].goal != []:
-                env_limits = grid.x_lim + grid.y_lim
-                goal = dict_of_drones_pos[i].goal
-                tf_prefix = i
-                Astar_Movement = Astar.build_trj(drones[i].pos, env_limits, grid.res, grid.matrix, goal, tf_prefix,
-                                                 dict_of_drones_pos)
-                if Astar_Movement == []:
-                    Astar_Movement = [[drones[i].pos[0][0], drones[i].pos[0][1]], goal]
-                agents[i].astar_path = Astar_Movement
-
-            guidance = Guidance.Guidance(grid.matrix)
-            dict_of_drones_pos, agents = guidance.LocalGuidance(drones[i].pos, drones[i].current_heading, dict_of_drones_pos, agents, i)
+            Astar_Movement, next_heading = localmissionplanner[i].TaskAssignment(dict_of_drones_pos, drones[i].pos, grid.matrix)
+            agents[i].astar_path = Astar_Movement
+            dict_of_drones_pos, agents = guidance[i].WPmonitoring(drones[i].pos, drones[i].current_heading, dict_of_drones_pos, agents, grid.matrix, next_heading)
             drones[i].update_virtual_targets(agents[i].next_pos, agents[i].next_heading)
             display.plot_step(agents[i].next_pos, grid.empty_idxs, grid.wall_idxs, drones[i].pos, i)
 

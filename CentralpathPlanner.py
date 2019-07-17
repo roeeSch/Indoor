@@ -3,8 +3,7 @@ import math
 import numpy as np
 
 class CentralpathPlanner:
-    def __init__(self, Grid, num_of_agents, num_of_steps, x_lim, y_lim, res):
-        self.Grid = Grid
+    def __init__(self, num_of_agents, num_of_steps, x_lim, y_lim, res):
         self.x_lim = x_lim
         self.y_lim = y_lim
         self.res = res
@@ -14,7 +13,7 @@ class CentralpathPlanner:
         self.y_grid = np.round((y_lim[1] - y_lim[0]) / 8)
 
 
-    def BuildPath(self, dict_of_drones_pos):
+    def BuildPath(self, dict_of_drones_pos, Grid):
 
         for k in range(self.num_of_agents):
 
@@ -29,7 +28,7 @@ class CentralpathPlanner:
             empty_tails = []
             for i in range(i_min, i_max):
                 for j in range(j_min, j_max):
-                    if self.Grid[i][j] == 1:
+                    if Grid[i][j] == 0:
                         empty_tails.append([i, j])
 
             g_idx = np.random.randint(len(empty_tails))
