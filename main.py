@@ -19,12 +19,11 @@ from LocalMissionPlanner import LocalMissionPlanner
 class DronePosGoal:
     """A simple class for holding drone position."""
 
-    def __init__(self, pos=None, next_pos=None, goal=None, yaw=None):
+    def __init__(self, pos=[], next_pos=[], trajectory=[], yaw=[]):
         self.pos = pos
         self.next_pos = next_pos
-        self.goal = goal
+        self.trajectory = trajectory
         self.yaw = yaw
-
 
 sleep_time = 0.01
 num_of_agents = 5
@@ -51,15 +50,15 @@ for i in range(0, num_of_agents):
 
     drones.append(Drone(i, drone_pos, 0, env))
     localmissionplanner.append(LocalMissionPlanner(env_limits, i, grid.res, drone_pos))
-    agents.append(Agent(i, drone_pos, grid.res, grid.x_lim, grid.y_lim))
+    # agents.append(Agent(i, drone_pos, grid.res, grid.x_lim, grid.y_lim))
     drones_pos_list.append(list(drone_pos[0]))
-    guidance.append(Guidance(i))
+    guidance.append(Guidance(i, grid.x_lim, grid.y_lim, grid.res, drone_pos))
 
 display = Display(env.border_polygon, env.obs_array, grid.x_lim, grid.y_lim, grid.res, grid.matrix, drones_pos_list)
 centralpathplanner = CentralpathPlanner(num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res)
 
 for i in range(0, num_of_agents):
-    dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos[0], next_pos=drones[i].pos[0], goal=drones[i].pos[0], yaw=0)
+    dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos, next_pos=drones[i].pos, trajectory=[], yaw=0)
 
 movie_flag = False
 if not movie_flag:
@@ -73,11 +72,10 @@ if not movie_flag:
             tof_list = drones[i].tof_sensing()
             grid.update_from_tof_sensing_list(tof_list)
             drones[i].preform_step(drones)
-            Astar_Movement, next_heading = localmissionplanner[i].TaskAssignment(dict_of_drones_pos, drones[i].pos, grid.matrix)
-            agents[i].astar_path = Astar_Movement
-            dict_of_drones_pos, agents = guidance[i].WPmonitoring(drones[i].pos, drones[i].current_heading, dict_of_drones_pos, agents, grid.matrix, next_heading)
-            drones[i].update_virtual_targets(agents[i].next_pos, agents[i].next_heading)
-            display.plot_step(agents[i].next_pos, grid.empty_idxs, grid.wall_idxs, drones[i].pos, i)
+            dict_of_drones_pos = localmissionplanner[i].TaskAssignment(dict_of_drones_pos, drones[i].pos, grid.matrix)
+            dict_of_drones_pos = guidance[i].WPmonitoring(drones[i].pos, drones[i].current_heading, dict_of_drones_pos, grid.matrix)
+            drones[i].update_virtual_targets(guidance[i].next_pos, guidance[i].next_heading)
+            display.plot_step(guidance[i].next_pos, grid.empty_idxs, grid.wall_idxs, drones[i].pos, i)
 
         display.fig.canvas.draw()
         time.sleep(sleep_time)

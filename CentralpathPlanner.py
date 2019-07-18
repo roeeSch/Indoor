@@ -17,7 +17,7 @@ class CentralpathPlanner:
 
         for k in range(self.num_of_agents):
 
-            current_drone_pos = dict_of_drones_pos[k].pos
+            current_drone_pos = dict_of_drones_pos[k].pos[0]
             x_min = np.maximum(current_drone_pos[0] - self.x_grid, self.x_lim[0])
             x_max = np.minimum(current_drone_pos[0] + self.x_grid, self.x_lim[1])
             y_min = np.maximum(current_drone_pos[1] - self.y_grid, self.y_lim[0])
@@ -33,7 +33,7 @@ class CentralpathPlanner:
 
             g_idx = np.random.randint(len(empty_tails))
             goal = empty_tails[g_idx]
-            dict_of_drones_pos[k].goal = np.array(self.ij_to_xy(goal[0], goal[1]))
+            dict_of_drones_pos[k].trajectory = [np.array(self.ij_to_xy(goal[0], goal[1]))]
 
         return dict_of_drones_pos
 

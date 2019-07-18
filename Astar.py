@@ -157,9 +157,9 @@ class Astar:
     def get_motion_nodes(self):
 
         mx, my = [], []
-        current_drone_pos = self.dict_of_drones_pos[self.tf_prefix].pos
-        drones_pos = [self.dict_of_drones_pos[i].pos for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos, current_drone_pos)]
-        drones_next_pos = [self.dict_of_drones_pos[i].next_pos for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos, current_drone_pos)]
+        current_drone_pos = self.dict_of_drones_pos[self.tf_prefix].pos[0]
+        drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
+        drones_next_pos = [self.dict_of_drones_pos[i].next_pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
         x_min = np.maximum(current_drone_pos[0] - self.x_grid, self.x_lim[0])
         x_max = np.minimum(current_drone_pos[0] + self.x_grid, self.x_lim[1])
         y_min = np.maximum(current_drone_pos[1] - self.y_grid, self.y_lim[0])
@@ -245,10 +245,10 @@ def build_trj(pos, env_limits, res, matrix, goal, tf_prefix, dict_of_drones_pos)
     y_lim = env_limits[2:4]
     astar = Astar(x_lim, y_lim, matrix, res, tf_prefix, dict_of_drones_pos)
 
-    gx = goal[0]
-    gy = goal[1]
+    gx = goal[0][0]
+    gy = goal[0][1]
 
-    astar_movement = astar.PlanningAlg(pos[0], pos[1], gx, gy)
+    astar_movement = astar.PlanningAlg(pos[0][0], pos[0][1], gx, gy)
     # Astar_Movement = astar_movement[1:-1]
     Astar_Movement = astar_movement[1:] # esrase this
 
