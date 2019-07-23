@@ -23,11 +23,12 @@ class Astar:
         self.res = res
         self.tf_prefix = tf_prefix
         self.dict_of_drones_pos = dict_of_drones_pos
-        self.scanning_range = np.round((x_lim[1] - x_lim[0])/2 + (y_lim[1] - y_lim[0])/2)/2
-        self.x_grid = np.round((x_lim[1] - x_lim[0]) / 6)
-        self.y_grid = np.round((y_lim[1] - y_lim[0]) / 6)
-        self.num_of_temp_nodes = ((self.x_grid + self.y_grid)/2)/2
-        self.min_dist_between_drones = 20
+        self.scanning_range = 200
+        self.x_grid = np.round((x_lim[1] - x_lim[0]) / 5)
+        self.y_grid = np.round((y_lim[1] - y_lim[0]) / 5)
+        self.num_of_temp_nodes = 60
+        self.min_dist_between_drones = 10
+        self.use_dict_drone = False
 
     def PlanningAlg(self, sx, sy, gx, gy):
 
@@ -53,7 +54,7 @@ class Astar:
             Astar_path = []
             return Astar_path
 
-        mx, my = self.get_motion_nodes()
+        mx, my = self.get_motion_nodes(sx, sy, gx, gy)
 
         openset, closedset = dict(), dict()
         openset[self.calc_index(nstart, xw, minx, miny)] = nstart
@@ -140,49 +141,55 @@ class Astar:
         xwidth = round(maxx - minx)
         ywidth = round(maxy - miny)
 
-        nrow, ncol = np.shape(self.matrix)
-        # obstacle map generation
-        obmap = np.zeros((nrow, ncol), dtype=bool)
-
-        for ix in range(nrow):
-            for iy in range(ncol):
-                if self.matrix[ix][iy] != 1:
-                    obmap[ix][iy] = True
+        obmap = self.matrix != 0
 
         return obmap, minx, miny, maxx, maxy, xwidth, ywidth
 
     def calc_index(self, node, xwidth, xmin, ymin):
         return (node.y - ymin) * xwidth + (node.x - xmin)
 
-    def get_motion_nodes(self):
+    def get_motion_nodes(self, sx, sy, gx, gy):
 
         mx, my = [], []
-        current_drone_pos = self.dict_of_drones_pos[self.tf_prefix].pos[0]
-        drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
-        drones_next_pos = [self.dict_of_drones_pos[i].next_pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
-        x_min = np.maximum(current_drone_pos[0] - self.x_grid, self.x_lim[0])
-        x_max = np.minimum(current_drone_pos[0] + self.x_grid, self.x_lim[1])
-        y_min = np.maximum(current_drone_pos[1] - self.y_grid, self.y_lim[0])
-        y_max = np.minimum(current_drone_pos[1] + self.y_grid, self.y_lim[1])
+        current_drone_pos = [sx, sy]
+        current_drone_goal = [gx, gy]
+        rng_start_to_goal = 1.5*np.linalg.norm(np.subtract(current_drone_pos, current_drone_goal))
+        x_min = np.maximum(current_drone_pos[0] - rng_start_to_goal, self.x_lim[0])
+        x_max = np.minimum(current_drone_pos[0] + rng_start_to_goal, self.x_lim[1])
+        y_min = np.maximum(current_drone_pos[1] - rng_start_to_goal, self.y_lim[0])
+        y_max = np.minimum(current_drone_pos[1] + rng_start_to_goal, self.y_lim[1])
 
-        x_rand_vec = np.random.randint(x_min, x_max, self.num_of_temp_nodes)
-        y_rand_vec = np.random.randint(y_min, y_max, self.num_of_temp_nodes)
-        dummy_cntr = 0
+        x_rand_vec = np.random.randint(int(np.round(x_min)), int(np.round(x_max)), int(self.num_of_temp_nodes))
+        y_rand_vec = np.random.randint(int(np.round(y_min)), int(np.round(y_max)), int(self.num_of_temp_nodes))
 
-        for k in range(len(x_rand_vec)):
-            dummy_cntr += 1
-            node_valid = True
-            temp_m_node_xy = [x_rand_vec[k], y_rand_vec[k]]
-            temp_i, temp_j = self.xy_to_ij(x_rand_vec[k], y_rand_vec[k])
-            if self.matrix[temp_i][temp_j] == 0:
-                for dp_idx in range(len(drones_pos)):
-                    if (np.linalg.norm(np.subtract(drones_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones
-                        and np.linalg.norm(np.subtract(drones_next_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones):
-                        node_valid = False
+        if self.use_dict_drone:
+            drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
+            drones_next_pos = [self.dict_of_drones_pos[i].next_pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
+
+            for k in range(len(x_rand_vec)):
+                node_valid = True
+                temp_m_node_xy = [x_rand_vec[k], y_rand_vec[k]]
+                temp_i, temp_j = self.xy_to_ij(x_rand_vec[k], y_rand_vec[k])
+                if self.matrix[temp_i][temp_j] == 0:
+                    for dp_idx in range(len(drones_pos)):
+                        if (np.linalg.norm(np.subtract(drones_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones
+                            and np.linalg.norm(np.subtract(drones_next_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones):
+                            node_valid = False
+                            break
+                    if node_valid:
+                        mx.append(temp_m_node_xy[0])
+                        my.append(temp_m_node_xy[1])
+                    if len(mx) >= (self.num_of_temp_nodes/2):
                         break
-                if node_valid:
+        else:
+            for k in range(len(x_rand_vec)):
+                temp_m_node_xy = [x_rand_vec[k], y_rand_vec[k]]
+                temp_i, temp_j = self.xy_to_ij(x_rand_vec[k], y_rand_vec[k])
+                if self.matrix[temp_i][temp_j] == 0:
                     mx.append(temp_m_node_xy[0])
                     my.append(temp_m_node_xy[1])
+                if len(mx) >= (self.num_of_temp_nodes / 2):
+                    break
 
         return mx, my
 
@@ -249,7 +256,6 @@ def build_trj(pos, env_limits, res, matrix, goal, tf_prefix, dict_of_drones_pos)
     gy = goal[0][1]
 
     astar_movement = astar.PlanningAlg(pos[0][0], pos[0][1], gx, gy)
-    # Astar_Movement = astar_movement[1:-1]
-    Astar_Movement = astar_movement[1:] # esrase this
+    Astar_Movement = astar_movement[1:]
 
     return Astar_Movement

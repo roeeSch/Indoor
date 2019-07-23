@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import math
 import numpy as np
 
 class CentralpathPlanner:
@@ -9,11 +8,11 @@ class CentralpathPlanner:
         self.res = res
         self.num_of_agents = num_of_agents
         self.num_of_steps = num_of_steps
-        self.x_grid = np.round((x_lim[1] - x_lim[0]) / 8)
-        self.y_grid = np.round((y_lim[1] - y_lim[0]) / 8)
+        self.x_grid = np.round((x_lim[1] - x_lim[0]) / 2)
+        self.y_grid = np.round((y_lim[1] - y_lim[0]) / 2)
 
 
-    def BuildPath(self, dict_of_drones_pos, Grid):
+    def FindGlobalTrajectories(self, dict_of_drones_pos, Grid):
 
         for k in range(self.num_of_agents):
 
@@ -38,10 +37,10 @@ class CentralpathPlanner:
         return dict_of_drones_pos
 
 
-    def FindMultiPath(self):
+    def MakeGraph(self):
         pass
 
-    def EvaluatePath(self):
+    def GoalAssignment(self):
         pass
 
     def EvaluatePath(self):

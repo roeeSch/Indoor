@@ -1,8 +1,7 @@
 #!/usr/bin/env python
-import math
 import numpy as np
 
-class Guidance:
+class WPmonitoring:
     def __init__(self, Prefix, x_lim, y_lim, res, current_pos):
         self.Prefix = Prefix
         self.x_lim = x_lim
@@ -11,22 +10,17 @@ class Guidance:
         self.current_pos = current_pos
         self.next_pos = current_pos
         self.DroneTrj = []
-        self.stepSizeLimit = 30
+        self.stepSizeLimit = 50
         self.dist_factor = 1
         self.step_noise_size = 20
         self.current_heading = []
         self.next_heading = []
 
 
-    def WPmonitoring(self, current_pos, current_heading, dict_of_drones_pos, Grid):
-            self.current_pos = current_pos
-            self.DroneTrj = dict_of_drones_pos[self.Prefix].trajectory
-            self.preform_step_sys_sim(current_pos, current_heading, Grid, dict_of_drones_pos[self.Prefix].yaw)
-            dict_of_drones_pos[self.Prefix].pos = current_pos
-            dict_of_drones_pos[self.Prefix].next_pos = self.next_pos
-            dict_of_drones_pos[self.Prefix].trajectory = self.DroneTrj
-
-            return dict_of_drones_pos
+    def FollowWP(self, current_pos, current_heading, Grid, trajectory, next_heading):
+        self.current_pos = current_pos
+        self.DroneTrj = trajectory
+        self.preform_step_sys_sim(current_pos, current_heading, next_heading, Grid)
 
 
     def update_current_state(self, current_pos, current_heading):
@@ -34,7 +28,7 @@ class Guidance:
         self.current_heading = current_heading
 
 
-    def preform_step_sys_sim(self, current_pos, current_heading, matrix, next_heading):
+    def preform_step_sys_sim(self, current_pos, current_heading, next_heading, matrix):
         self.update_current_state(current_pos, current_heading)
         self.Dynam_Search_in_maze(matrix)
         self.next_heading = next_heading
@@ -101,7 +95,7 @@ class Guidance:
     def is_step_legal(self, curr_pos, step, matrix):
         new_pos = curr_pos + step
         i, j = self.xy_to_ij(new_pos[0][0], new_pos[0][1])
-        if not (0 <= i and i < matrix.shape[0] and 0 <= j and j < matrix.shape[1] and matrix[i][j] == 0):
+        if not (0 <= i and i < matrix.shape[0] and 0 <= j and j < matrix.shape[1]):
             return False
         return self.is_los(curr_pos, new_pos, matrix)
 
