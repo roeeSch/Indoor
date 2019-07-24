@@ -1,4 +1,6 @@
+#!/usr/bin/env python
 import numpy as np
+from bresenham import bresenham
 
 class Grid:
 
@@ -46,11 +48,16 @@ class Grid:
             self.update_with_tof_sensor(ln[1], ln[2], ln[0])
 
     def update_with_tof_sensor(self, sensor_pos, tof_sensing_pos, is_tof_senses):
-        num_of_samples = int(np.floor(np.linalg.norm(tof_sensing_pos - sensor_pos) / self.res * 2))
-        xs = np.linspace(sensor_pos[0][0], tof_sensing_pos[0][0], num=num_of_samples, endpoint=True)
-        ys = np.linspace(sensor_pos[0][1], tof_sensing_pos[0][1], num=num_of_samples, endpoint=True)
-        for ind in range(1, num_of_samples):
-            i, j = self.xy_to_ij(xs[ind], ys[ind])
+        i0, j0 = self.xy_to_ij(sensor_pos[0][0], sensor_pos[0][1])
+        i1, j1 = self.xy_to_ij(tof_sensing_pos[0][0], tof_sensing_pos[0][1])
+        bres_list = list(bresenham(i0, j0, i1, j1))
+        # num_of_samples = int(np.floor(np.linalg.norm(tof_sensing_pos - sensor_pos) / self.res * 2))
+        # xs = np.linspace(sensor_pos[0][0], tof_sensing_pos[0][0], num=num_of_samples, endpoint=True)
+        # ys = np.linspace(sensor_pos[0][1], tof_sensing_pos[0][1], num=num_of_samples, endpoint=True)
+        # for ind in range(1, num_of_samples):
+        for ind in range(len(bres_list)):
+            # i, j = self.xy_to_ij(xs[ind], ys[ind])
+            i, j = bres_list[ind]
             if 0 > i or i >= self.matrix.shape[0] or 0 > j or j >= self.matrix.shape[1]:
                 return
             if self.matrix[i][j] == -1:
@@ -64,4 +71,3 @@ class Grid:
                 i, j = self.xy_to_ij(wall_pos[0][0], wall_pos[0][1])
                 self.change_tail_to_wall(i, j)
                 self.wall_idxs.append([i, j])
-

@@ -1,3 +1,6 @@
+#!/usr/bin/env python
+# import matplotlib
+# matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 from shapely.geometry import Point, LineString, Polygon
 from descartes import PolygonPatch
