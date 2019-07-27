@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 import math
-
 import numpy as np
 from bresenham import bresenham
 
@@ -26,7 +25,7 @@ class Astar:
         self.scanning_range = 200
         self.x_grid = np.round((x_lim[1] - x_lim[0]) / 5)
         self.y_grid = np.round((y_lim[1] - y_lim[0]) / 5)
-        self.num_of_temp_nodes = 60
+        self.num_of_temp_nodes = 40
         self.min_dist_between_drones = 10
         self.use_dict_drone = False
 
@@ -159,8 +158,8 @@ class Astar:
         y_min = np.maximum(current_drone_pos[1] - rng_start_to_goal, self.y_lim[0])
         y_max = np.minimum(current_drone_pos[1] + rng_start_to_goal, self.y_lim[1])
 
-        x_rand_vec = np.random.randint(int(np.round(x_min)), int(np.round(x_max)), int(self.num_of_temp_nodes))
-        y_rand_vec = np.random.randint(int(np.round(y_min)), int(np.round(y_max)), int(self.num_of_temp_nodes))
+        x_rand_vec = np.random.choice(range(int(np.round(x_min)), int(np.round(x_max))), int(self.num_of_temp_nodes))
+        y_rand_vec = np.random.choice(range(int(np.round(y_min)), int(np.round(y_max))), int(self.num_of_temp_nodes))
 
         if self.use_dict_drone:
             drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
@@ -220,7 +219,7 @@ class Astar:
         bpath = list(bresenham(si, sj, gi, gj))
         ok_way = True
         for ii, elem in enumerate(bpath[1:]):
-            if obmap[elem[0]][elem[1]]:
+            if obmap[elem[0]][elem[1]] != 0:
                 ok_way = False
                 break
 

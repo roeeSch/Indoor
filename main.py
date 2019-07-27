@@ -6,7 +6,7 @@ from EnvSim import Env
 from Grid import Grid
 from Drone import Drone
 from Display import Display
-from CentralpathPlanner import CentralpathPlanner
+from CentralPathPlanner import CentralPathPlanner
 from WPmonitoring import WPmonitoring
 from LocalMissionPlanner import LocalMissionPlanner
 import copy
@@ -50,7 +50,7 @@ for i in range(0, num_of_agents):
     wpmonitoring.append(WPmonitoring(i, grid.x_lim, grid.y_lim, grid.res, drone_pos))
 
 display = Display(env.border_polygon, env.obs_array, grid.x_lim, grid.y_lim, grid.res, grid.matrix, drones_pos_list)
-centralpathplanner = CentralpathPlanner(num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res)
+centralpathplanner = CentralPathPlanner(num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res, grid.matrix)
 
 for i in range(0, num_of_agents):
     dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos, next_pos=drones[i].pos, trajectory=[], yaw=drones[i].current_heading)
