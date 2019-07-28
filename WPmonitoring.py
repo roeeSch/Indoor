@@ -116,23 +116,23 @@ class WPmonitoring:
         return x, y
 
 
-    # def is_los(self, p1, p2, matrix):
-    #     i0, j0 = self.xy_to_ij(p1[0][0], p1[0][1])
-    #     i1, j1 = self.xy_to_ij(p2[0][0], p2[0][1])
-    #     bres_list = list(bresenham(i0, j0, i1, j1))
-    #     for ind in range(len(bres_list)):
-    #         i, j = bres_list[ind]
-    #         if matrix[i][j] != 0:
-    #             return False
-    #     return True
-
-
     def is_los(self, p1, p2, matrix):
-        n = int(np.maximum(1, np.ceil(np.linalg.norm(p1 - p2) / self.res) * 3))
-        x = np.linspace(p1[0][0], p2[0][0], num=n, endpoint=True)
-        y = np.linspace(p1[0][1], p2[0][1], num=n, endpoint=True)
-        for ind in range(1, n):
-            i, j = self.xy_to_ij(x[ind], y[ind])
+        i0, j0 = self.xy_to_ij(p1[0][0], p1[0][1])
+        i1, j1 = self.xy_to_ij(p2[0][0], p2[0][1])
+        bres_list = list(bresenham(i0, j0, i1, j1))
+        for ind in range(len(bres_list)):
+            i, j = bres_list[ind]
             if matrix[i][j] != 0:
                 return False
         return True
+
+
+    # def is_los(self, p1, p2, matrix):
+    #     n = int(np.maximum(1, np.ceil(np.linalg.norm(p1 - p2) / self.res) * 3))
+    #     x = np.linspace(p1[0][0], p2[0][0], num=n, endpoint=True)
+    #     y = np.linspace(p1[0][1], p2[0][1], num=n, endpoint=True)
+    #     for ind in range(1, n):
+    #         i, j = self.xy_to_ij(x[ind], y[ind])
+    #         if matrix[i][j] != 0:
+    #             return False
+    #     return True

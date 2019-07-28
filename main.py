@@ -20,7 +20,7 @@ class DronePosGoal:
         self.trajectory = trajectory
         self.yaw = yaw
 
-sleep_time = 0.01
+sleep_time = 0.0001
 num_of_agents = 5
 num_of_steps = 5
 count_time_step = 0
@@ -79,7 +79,7 @@ if not movie_flag:
             # Update parameters of drones dictionary
             dict_of_drones_pos[i].yaw = copy.deepcopy(localmissionplanner[i].nextyaw)
             dict_of_drones_pos[i].trajectory = copy.deepcopy(localmissionplanner[i].traj)
-
+            # Chose the next WP (avoiding obstacles) and update the trajectory
             wpmonitoring[i].FollowWP(drones[i].pos, drones[i].current_heading, grid.matrix, dict_of_drones_pos[i].trajectory, dict_of_drones_pos[i].yaw)
             # Update parameters of drones dictionary
             dict_of_drones_pos[i].pos = copy.deepcopy(wpmonitoring[i].current_pos)
