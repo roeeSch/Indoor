@@ -24,7 +24,7 @@ sleep_time = 0.01
 num_of_agents = 5
 num_of_steps = 5
 count_time_step = 0
-time_mult_path_find = 5
+time_mult_path_find = 10
 num_of_iter = 1000
 resolution = 10
 
@@ -38,6 +38,8 @@ drones = list()
 localmissionplanner = list()
 wpmonitoring = list()
 drones_pos_list = list()
+
+# Initiate all classes
 for i in range(0, num_of_agents):
     drone_pos = [[-10000, -10000]]
     while (env.is_in_obs(drone_pos)) or not(env.is_in_border_polygon(drone_pos)):
@@ -52,6 +54,7 @@ for i in range(0, num_of_agents):
 display = Display(env.border_polygon, env.obs_array, grid.x_lim, grid.y_lim, grid.res, grid.matrix, drones_pos_list)
 centralpathplanner = CentralPathPlanner(num_of_agents, num_of_steps, grid.x_lim, grid.y_lim, grid.res, grid.matrix)
 
+# Initiate the dictionary of all drones
 for i in range(0, num_of_agents):
     dict_of_drones_pos[i] = DronePosGoal(pos=drones[i].pos, next_pos=drones[i].pos, trajectory=[], yaw=drones[i].current_heading)
 

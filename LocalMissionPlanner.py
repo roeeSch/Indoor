@@ -5,6 +5,7 @@ import copy
 
 class LocalMissionPlanner:
     def __init__(self, env_limits, tf_prefix, res, curpos, grid, curyaw):
+        # Uses A* algorithm (Astar function)
         self.env_limits = env_limits
         self.tf_prefix = tf_prefix
         self.res = res

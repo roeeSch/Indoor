@@ -36,23 +36,24 @@ class Astar:
         # gx: goal x position [m]
         # gy: goal y position [m]
 
-        mx = []
-        my = []
         nstart = Node(sx, sy, 0, -1)
         ngoal = Node(gx, gy, 0, -1)
 
+        # Derive obstacle map from the Grid
         obmap, minx, miny, maxx, maxy, xw, yw = self.calc_obstacle_map()
 
         # import matplotlib.pyplot as plt
         # fig = plt.figure(45645)
         # plt.imshow(np.transpose(obmap), origin='lower')
 
+        # If the path free exit
         g_i, g_j = self.xy_to_ij(gx, gy)
         s_i, s_j = self.xy_to_ij(sx, sy)
         if self.is_path_free(s_i, s_j, g_i, g_j, obmap):
             Astar_path = []
             return Astar_path
 
+        # Choose motion nodes
         mx, my = self.get_motion_nodes(sx, sy, gx, gy)
 
         openset, closedset = dict(), dict()
@@ -162,8 +163,10 @@ class Astar:
         y_rand_vec = np.random.choice(range(int(np.round(y_min)), int(np.round(y_max))), int(self.num_of_temp_nodes))
 
         if self.use_dict_drone:
-            drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
-            drones_next_pos = [self.dict_of_drones_pos[i].next_pos[0] for i in self.dict_of_drones_pos if not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
+            drones_pos = [self.dict_of_drones_pos[i].pos[0] for i in self.dict_of_drones_pos if
+                          not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
+            drones_next_pos = [self.dict_of_drones_pos[i].next_pos[0] for i in self.dict_of_drones_pos if
+                               not np.array_equal(self.dict_of_drones_pos[i].pos[0], current_drone_pos)]
 
             for k in range(len(x_rand_vec)):
                 node_valid = True
@@ -171,8 +174,10 @@ class Astar:
                 temp_i, temp_j = self.xy_to_ij(x_rand_vec[k], y_rand_vec[k])
                 if self.matrix[temp_i][temp_j] == 0:
                     for dp_idx in range(len(drones_pos)):
-                        if (np.linalg.norm(np.subtract(drones_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones
-                            and np.linalg.norm(np.subtract(drones_next_pos[dp_idx], temp_m_node_xy)) < self.min_dist_between_drones):
+                        if (np.linalg.norm(np.subtract(drones_pos[dp_idx], temp_m_node_xy))
+                                < self.min_dist_between_drones
+                            and np.linalg.norm(np.subtract(drones_next_pos[dp_idx], temp_m_node_xy))
+                                < self.min_dist_between_drones):
                             node_valid = False
                             break
                     if node_valid:

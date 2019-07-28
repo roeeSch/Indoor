@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import numpy as np
+from bresenham import bresenham
 
 class WPmonitoring:
     def __init__(self, Prefix, x_lim, y_lim, res, current_pos):
@@ -49,7 +50,8 @@ class WPmonitoring:
                                                         np.subtract(self.DroneTrj[0], self.current_pos[0]), matrix):
             vec = np.subtract(self.DroneTrj[0], self.current_pos[0])
             as_flag = True
-        # If there are steps left in the path and the previous step is not finished and still legal then resume the prevoius step
+        # If there are steps left in the path and the previous step is not finished and still legal then
+        # resume the previous step
         elif self.DroneTrj != [] and np.linalg.norm(
                 np.subtract(self.current_pos[0], self.next_pos[0])) > self.dist_factor * self.step_noise_size \
                 and self.is_step_legal(self.current_pos, np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
@@ -58,7 +60,7 @@ class WPmonitoring:
         elif self.is_step_legal(self.current_pos, np.subtract(self.next_pos[0], self.current_pos[0]), matrix):
             vec = np.subtract(self.next_pos[0], self.current_pos[0])
 
-        # Check if the choosen step will be to close to a wall
+        # Check if the chosen step will be to close to a wall
         if sum(vec) != 0:
             ivec, jvec = self.xy_to_ij(vec[0], vec[1])
             for ti in range(ivec - tails_from_wall, ivec + tails_from_wall + 1):
@@ -80,12 +82,14 @@ class WPmonitoring:
             temp = np.divide(vec, np.linalg.norm(vec))
             vec = np.multiply(temp, self.stepSizeLimit)
 
+        # Add noise (only for simulation)
         while break_counter < max_count_val:
             break_counter = break_counter + 1
             step = self.step_noise_size * ([0.5, 0.5] - np.random.rand(2)) + vec
             if self.is_step_legal(self.current_pos, step, matrix):
                 break
 
+        # Update the step and erase the wp from the path
         if break_counter < max_count_val:
             self.next_pos = self.current_pos + step
             if as_flag and self.DroneTrj != []:
@@ -110,6 +114,17 @@ class WPmonitoring:
         x = self.x_lim[0] + i * self.res + self.res / 2
         y = self.y_lim[0] + j * self.res + self.res / 2
         return x, y
+
+
+    # def is_los(self, p1, p2, matrix):
+    #     i0, j0 = self.xy_to_ij(p1[0][0], p1[0][1])
+    #     i1, j1 = self.xy_to_ij(p2[0][0], p2[0][1])
+    #     bres_list = list(bresenham(i0, j0, i1, j1))
+    #     for ind in range(len(bres_list)):
+    #         i, j = bres_list[ind]
+    #         if matrix[i][j] != 0:
+    #             return False
+    #     return True
 
 
     def is_los(self, p1, p2, matrix):
